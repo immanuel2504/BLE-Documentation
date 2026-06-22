@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <title>BLE API Reference</title>
 <link href="https://fonts.googleapis.com/css?family=Inter:400,600,700,900&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="css/custom-api.css?v=20260622-4" />
+<link rel="stylesheet" href="css/custom-api.css?v=20260622-5" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
@@ -1429,11 +1429,35 @@ function render(spec) {
   var navTagLinks = Array.prototype.slice.call(document.querySelectorAll('.nav-tag'));
   var opSections = Array.prototype.slice.call(document.querySelectorAll('.operation'));
   var tagSections = Array.prototype.slice.call(document.querySelectorAll('.tag-section'));
+  var infoHeadings = Array.prototype.slice.call(document.querySelectorAll('.info-description h2, .info-description h3'));
   var lastActive = null;
 
   function updateActiveNav() {
     var threshold = TOPBAR_H + 12;
     var bestOp = null, bestDist = Infinity;
+    var activeInfoId = null;
+
+    /* Check info sections first (Overview, Supported beacon protocols, etc.) */
+    var bestInfoTop = -Infinity;
+    infoHeadings.forEach(function(heading){
+      var rect = heading.getBoundingClientRect();
+      if (rect.top<=threshold && rect.top>bestInfoTop) {
+        bestInfoTop=rect.top;
+        activeInfoId = heading.id;
+      }
+    });
+
+    /* If in info section, use that; otherwise check operations and tags */
+    if (activeInfoId) {
+      navTagLinks.forEach(function(link){
+        link.classList.toggle('active', link.getAttribute('href')==='#'+activeInfoId);
+      });
+      navOpLinks.forEach(function(link){
+        link.classList.remove('active');
+      });
+      return;
+    }
+
     opSections.forEach(function(op){
       var rect = op.getBoundingClientRect();
       var visible = rect.bottom>threshold && rect.top<window.innerHeight;
