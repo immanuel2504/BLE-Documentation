@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <title>BLE API Reference</title>
 <link href="https://fonts.googleapis.com/css?family=Inter:400,600,700,900&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="css/custom-api.css?v=20260622-6" />
+<link rel="stylesheet" href="css/custom-api.css?v=20260622-7" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
@@ -1448,14 +1448,26 @@ function render(spec) {
     return { tagHref: '#'+el.id, opHref: null };
   }
 
+  function atPageBottom() {
+    var doc = document.documentElement;
+    return (window.innerHeight + window.scrollY) >= (doc.scrollHeight - 2);
+  }
+
   function updateActiveNav() {
+    if (!spyEls.length) return;
     var threshold = TOPBAR_H + 12;
     var active = null;
-    for (var i=0; i<spyEls.length; i++) {
-      if (spyEls[i].getBoundingClientRect().top <= threshold) active = spyEls[i];
-      else break; /* tops are monotonic in document order */
+    /* Bottom of page → always the last section (handles short final sections
+       whose top never reaches the trigger line). */
+    if (atPageBottom()) {
+      active = spyEls[spyEls.length - 1];
+    } else {
+      for (var i=0; i<spyEls.length; i++) {
+        if (spyEls[i].getBoundingClientRect().top <= threshold) active = spyEls[i];
+        else break; /* tops are monotonic in document order */
+      }
+      if (!active) active = spyEls[0]; /* top of page → first section */
     }
-    if (!active && spyEls.length) active = spyEls[0]; /* top of page → first section */
 
     var h = hrefsForActive(active);
     navTagLinks.forEach(function(link){
@@ -1504,8 +1516,17 @@ function render(spec) {
     updateActiveNav();
   });
 
-  window.addEventListener('scroll', updateActiveNav, {passive:true});
+  /* rAF-throttled handler so rapid scroll/resize events stay smooth */
+  var navTick = false;
+  function scheduleActiveNav() {
+    if (navTick) return;
+    navTick = true;
+    window.requestAnimationFrame(function(){ navTick = false; updateActiveNav(); });
+  }
+  window.addEventListener('scroll', scheduleActiveNav, {passive:true});
+  window.addEventListener('resize', scheduleActiveNav, {passive:true});
   window.addEventListener('hashchange', updateActiveNav);
+  window.addEventListener('load', updateActiveNav);
   updateActiveNav();
 
   /* Mobile sidebar */
