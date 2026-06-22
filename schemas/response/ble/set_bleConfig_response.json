@@ -1,0 +1,34 @@
+{
+  "title": "set_bleConfig Response",
+  "description": "Acknowledges a BLE configuration update. Returns an empty payload on success.",
+  "type": "object",
+  "required": ["command", "command_id", "response", "payload"],
+  "properties": {
+    "command": {
+      "type": "string",
+      "const": "set_bleConfig",
+      "description": "Echoed command name"
+    },
+    "command_id": {
+      "type": "string",
+      "description": "Echoed command ID from the request"
+    },
+    "response": {
+      "type": "string",
+      "enum": ["success", "failure"],
+      "description": "Command result status"
+    },
+    "payload": {
+      "type": "object",
+      "description": "Empty object on success, or error details on failure."
+    }
+  },
+  "examples": [
+    {
+      "command": "set_bleConfig",
+      "command_id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+      "response": "success",
+      "payload": {}
+    }
+  ]
+}

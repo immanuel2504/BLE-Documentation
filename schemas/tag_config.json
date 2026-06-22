@@ -1,0 +1,20 @@
+{
+  "tag_groups": {
+    "BLE Scanner": ["BLE Configuration"],
+    "Control": ["Control Commands"]
+  },
+  "tag_descriptions": {
+    "BLE Configuration": "Configure the BLE scanner. Enable or disable scanning, set the scan interval, apply RSSI and service UUID filters, and configure protocol-specific filters for iBeacon, AltBeacon, Eddystone, and generic BLE devices.",
+    "Control Commands": "Start and stop BLE scanning on the reader. BLE must be configured and enabled before starting."
+  },
+  "operation_order": {
+    "BLE Configuration": [
+      "get_bleConfig",
+      "set_bleConfig"
+    ],
+    "Control Commands": [
+      "start",
+      "stop"
+    ]
+  }
+}

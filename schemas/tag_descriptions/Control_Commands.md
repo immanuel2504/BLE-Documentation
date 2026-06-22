@@ -1,0 +1,1 @@
+Use the control commands to start and stop BLE scanning on the reader. BLE must be configured with `set_bleConfig` and `ble.enable` set to `true` before issuing `start`. Use `scanType` to activate or stop BLE only, or combined BLE and RFID scanning.

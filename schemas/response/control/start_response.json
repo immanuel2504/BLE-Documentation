@@ -1,0 +1,34 @@
+{
+  "title": "start Response",
+  "description": "Acknowledges that BLE scanning has started. Returns an empty payload on success.",
+  "type": "object",
+  "required": ["command", "command_id", "response", "payload"],
+  "properties": {
+    "command": {
+      "type": "string",
+      "const": "start",
+      "description": "Echoed command name"
+    },
+    "command_id": {
+      "type": "string",
+      "description": "Echoed command ID from the request"
+    },
+    "response": {
+      "type": "string",
+      "enum": ["success", "failure"],
+      "description": "Command result status"
+    },
+    "payload": {
+      "type": "object",
+      "description": "Empty object on success, or error details on failure."
+    }
+  },
+  "examples": [
+    {
+      "command": "start",
+      "command_id": "a1b2c3d4-0001-4000-8001-aabbccddeeff",
+      "response": "success",
+      "payload": {}
+    }
+  ]
+}

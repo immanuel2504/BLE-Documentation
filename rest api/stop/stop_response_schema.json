@@ -1,0 +1,10 @@
+{
+  "title": "Stop BLE Scan Response",
+  "description": "Empty object returned when BLE scanning has stopped successfully.",
+  "type": "object",
+  "properties": {},
+  "additionalProperties": false,
+  "examples": [
+    {}
+  ]
+}

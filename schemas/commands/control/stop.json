@@ -1,0 +1,50 @@
+{
+  "title": "stop",
+  "x-summary": "Stop BLE Scanning",
+  "description": "Stops BLE scanning on the reader. Use scanType to select which scan modes to stop.",
+  "x-tag": "Control Commands",
+  "type": "object",
+  "required": ["command", "command_id", "payload"],
+  "properties": {
+    "command": {
+      "type": "string",
+      "const": "stop",
+      "description": "MQTT command name"
+    },
+    "command_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier to correlate this request with its response"
+    },
+    "payload": {
+      "type": "object",
+      "properties": {
+        "scanType": {
+          "type": "array",
+          "description": "Scan modes to stop. Use [\"ble\"] to stop BLE only, or [\"ble\", \"rfid\"] to stop both.",
+          "items": {
+            "type": "string",
+            "enum": ["ble", "rfid"]
+          },
+          "example": ["ble"]
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "command": "stop",
+      "command_id": "b2c3d4e5-0001-4000-8001-bbccddeeff00",
+      "payload": {
+        "scanType": ["ble"]
+      }
+    },
+    {
+      "command": "stop",
+      "command_id": "b2c3d4e5-0002-4000-8002-bbccddeeff00",
+      "payload": {
+        "scanType": ["ble", "rfid"]
+      }
+    }
+  ]
+}

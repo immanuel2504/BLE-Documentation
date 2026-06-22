@@ -1,0 +1,24 @@
+{
+  "ble": {
+    "enable": true,
+    "scanIntervalSec": 5,
+    "protocols": {
+      "iBeacon": {
+        "enabled": true,
+        "filters": [
+          {
+            "uuid": "FDA50693-A4E2-4FB1-AFCF-C6EB07647825",
+            "major": 10001,
+            "minor": 20002,
+            "txPower": -59
+          }
+        ]
+      }
+    },
+    "additionalFilters": {
+      "rssi": -80,
+      "serviceUuids16": ["FEAA", "FE9B"],
+      "serviceUuids128": ["FDA50693-A4E2-4FB1-AFCF-C6EB07647825"]
+    }
+  }
+}

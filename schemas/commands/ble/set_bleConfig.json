@@ -1,0 +1,252 @@
+{
+  "title": "set_bleConfig",
+  "x-summary": "Set BLE Configuration",
+  "description": "Configures the Bluetooth Low Energy scanner on the reader. The ble.enable field is required in every request. Optional fields control scan interval, RSSI filter, service UUID filters, and protocol-specific settings for iBeacon, AltBeacon, Eddystone, and generic BLE devices.",
+  "x-tag": "BLE Configuration",
+  "type": "object",
+  "required": ["command", "command_id", "payload"],
+  "properties": {
+    "command": {
+      "type": "string",
+      "const": "set_bleConfig",
+      "description": "MQTT command name"
+    },
+    "command_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier to correlate this request with its response"
+    },
+    "payload": {
+      "type": "object",
+      "required": ["ble"],
+      "properties": {
+        "ble": {
+          "type": "object",
+          "required": ["enable"],
+          "properties": {
+            "enable": {
+              "type": "boolean",
+              "description": "Enable or disable BLE scanning. Required in every request.",
+              "example": true
+            },
+            "scanIntervalSec": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "How frequently the reader collects BLE scan results, in seconds. Minimum value is 1.",
+              "example": 5
+            },
+            "additionalFilters": {
+              "type": "object",
+              "description": "Cross-protocol filters applied to all BLE advertisements.",
+              "properties": {
+                "rssi": {
+                  "type": "integer",
+                  "minimum": -127,
+                  "maximum": 0,
+                  "description": "Minimum RSSI threshold in dBm. Range: -127 to 0.",
+                  "example": -70
+                },
+                "serviceUuids16": {
+                  "type": "array",
+                  "items": { "type": "string" },
+                  "example": ["FEAA", "FE9B"]
+                },
+                "serviceUuids128": {
+                  "type": "array",
+                  "items": { "type": "string" },
+                  "example": ["FDA50693-A4E2-4FB1-AFCF-C6EB07647825"]
+                }
+              }
+            },
+            "protocols": {
+              "type": "object",
+              "description": "Protocol-specific BLE scanner configurations.",
+              "properties": {
+                "iBeacon": {
+                  "type": "object",
+                  "properties": {
+                    "enabled": { "type": "boolean", "example": true },
+                    "filters": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "uuid": { "type": "string", "description": "Proximity UUID.", "example": "FDA50693-A4E2-4FB1-AFCF-C6EB07647825" },
+                          "major": { "type": "integer", "example": 10001 },
+                          "minor": { "type": "integer", "example": 20002 },
+                          "txPower": { "type": "integer", "description": "Calibrated RSSI at 1 metre.", "example": -59 }
+                        }
+                      }
+                    }
+                  }
+                },
+                "altBeacon": {
+                  "type": "object",
+                  "properties": {
+                    "enabled": { "type": "boolean", "example": true },
+                    "filters": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "mfgId": { "type": "string", "description": "Manufacturer ID (hex string).", "example": "0118" },
+                          "beaconId": { "type": "string", "description": "Beacon ID (UUID string).", "example": "2F234454-CF6D-4A0F-ADF2-F4911BA9FFA7" },
+                          "major": { "type": "integer", "example": 4 },
+                          "minor": { "type": "integer", "example": 4 },
+                          "refRssi": { "type": "integer", "description": "Reference RSSI at 1 metre.", "example": -100 }
+                        }
+                      }
+                    }
+                  }
+                },
+                "eddystone": {
+                  "type": "object",
+                  "properties": {
+                    "enabled": { "type": "boolean", "example": true },
+                    "filters": {
+                      "type": "array",
+                      "description": "Filter by Eddystone frame fields. Use frameType to target a specific frame type.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "frameType": { "type": "string", "enum": ["URL", "UID", "EID", "TLM"], "example": "URL" },
+                          "txPower": { "type": "integer", "example": -59 },
+                          "url": { "type": "string", "description": "Advertised URL (Eddystone-URL only).", "example": "https://www.zebra.com" },
+                          "namespace": { "type": "string", "description": "10-byte namespace hex string (Eddystone-UID only).", "example": "0102030405060708090A" },
+                          "instance": { "type": "string", "description": "6-byte instance ID hex string (Eddystone-UID only).", "example": "000000000001" },
+                          "ephemeralId": { "type": "string", "description": "8-byte ephemeral ID hex string (Eddystone-EID only).", "example": "0102030405060708" }
+                        }
+                      }
+                    }
+                  }
+                },
+                "generic": {
+                  "type": "object",
+                  "description": "Configuration for generic BLE devices.",
+                  "properties": {
+                    "enabled": { "type": "boolean", "example": true },
+                    "filters": {
+                      "type": "array",
+                      "description": "A device is forwarded if it matches any one filter entry.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "address": { "type": "string", "description": "Bluetooth MAC address.", "example": "7E:41:25:1E:D5:16" },
+                          "addressType": { "type": "string", "enum": ["public", "random"], "example": "random" },
+                          "name": { "type": "string", "example": "BLEPeripheralApp" },
+                          "alias": { "type": "string", "example": "BLEPeripheralApp" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "command": "set_bleConfig",
+      "command_id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+      "payload": {
+        "ble": {
+          "enable": true
+        }
+      }
+    },
+    {
+      "command": "set_bleConfig",
+      "command_id": "c3d4e5f6-a7b8-9012-cdef-123456789012",
+      "payload": {
+        "ble": {
+          "enable": true,
+          "scanIntervalSec": 5
+        }
+      }
+    },
+    {
+      "command": "set_bleConfig",
+      "command_id": "d4e5f6a7-b8c9-0123-defa-234567890123",
+      "payload": {
+        "ble": {
+          "enable": true,
+          "scanIntervalSec": 10,
+          "additionalFilters": {
+            "rssi": -70
+          }
+        }
+      }
+    },
+    {
+      "command": "set_bleConfig",
+      "command_id": "e5f6a7b8-c9d0-1234-efab-345678901234",
+      "payload": {
+        "ble": {
+          "enable": true,
+          "scanIntervalSec": 5,
+          "protocols": {
+            "iBeacon": {
+              "enabled": true,
+              "filters": [
+                {
+                  "uuid": "FDA50693-A4E2-4FB1-AFCF-C6EB07647825",
+                  "major": 10001,
+                  "minor": 20002,
+                  "txPower": -59
+                }
+              ]
+            },
+            "altBeacon": {
+              "enabled": true,
+              "filters": [
+                {
+                  "mfgId": "0118",
+                  "beaconId": "2F234454-CF6D-4A0F-ADF2-F4911BA9FFA7",
+                  "major": 4,
+                  "minor": 4,
+                  "refRssi": -100
+                }
+              ]
+            },
+            "eddystone": {
+              "enabled": true,
+              "filters": [
+                { "frameType": "URL", "txPower": -59, "url": "https://www.zebra.com" },
+                { "frameType": "UID", "txPower": -18, "namespace": "0102030405060708090A", "instance": "000000000001" },
+                { "frameType": "EID", "txPower": -18, "ephemeralId": "0102030405060708" }
+              ]
+            },
+            "generic": {
+              "enabled": true,
+              "filters": [
+                {
+                  "address": "7E:41:25:1E:D5:16",
+                  "addressType": "random",
+                  "name": "BLEPeripheralApp",
+                  "alias": "BLEPeripheralApp"
+                }
+              ]
+            }
+          },
+          "additionalFilters": {
+            "rssi": -80,
+            "serviceUuids16": ["FEAA", "FE9B"],
+            "serviceUuids128": ["FDA50693-A4E2-4FB1-AFCF-C6EB07647825"]
+          }
+        }
+      }
+    },
+    {
+      "command": "set_bleConfig",
+      "command_id": "f6a7b8c9-d0e1-2345-fabc-456789012345",
+      "payload": {
+        "ble": {
+          "enable": false
+        }
+      }
+    }
+  ]
+}

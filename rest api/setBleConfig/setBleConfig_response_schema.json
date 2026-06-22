@@ -1,0 +1,10 @@
+{
+  "title": "Set BLE Configuration Response",
+  "description": "Empty object returned on successful BLE configuration update.",
+  "type": "object",
+  "properties": {},
+  "additionalProperties": false,
+  "examples": [
+    {}
+  ]
+}

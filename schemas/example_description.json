@@ -1,0 +1,17 @@
+{
+  "set_bleConfig": {
+    "Enable BLE": "Enables BLE scanning in the reader configuration.",
+    "Set scan interval": "Enables BLE scanning and sets the BLE scan interval.",
+    "Apply RSSI filter": "Enables BLE scanning and filters advertisements by minimum RSSI.",
+    "Configure protocol filters": "Enables BLE scanning with iBeacon, AltBeacon, Eddystone, generic BLE, RSSI, and service UUID filters.",
+    "Disable BLE": "Disables BLE scanning in the reader configuration."
+  },
+  "start": {
+    "Start BLE only": "Starts BLE scanning only.",
+    "Start BLE and RFID": "Starts BLE scanning and RFID inventory together."
+  },
+  "stop": {
+    "Stop BLE only": "Stops BLE scanning only.",
+    "Stop BLE and RFID": "Stops BLE scanning and RFID inventory together."
+  }
+}

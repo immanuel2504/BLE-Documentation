@@ -1,0 +1,25 @@
+{
+  "title": "Stop BLE Scan Request",
+  "description": "Request payload for stopping BLE scanning. Use scanType to control which scan modes are stopped.",
+  "type": "object",
+  "properties": {
+    "scanType": {
+      "type": "array",
+      "description": "Scan modes to stop. Use [\"ble\"] for BLE only, or [\"ble\", \"rfid\"] to stop both.",
+      "items": {
+        "type": "string",
+        "enum": ["ble", "rfid"]
+      },
+      "example": ["ble"]
+    }
+  },
+  "additionalProperties": false,
+  "examples": [
+    {
+      "scanType": ["ble"]
+    },
+    {
+      "scanType": ["ble", "rfid"]
+    }
+  ]
+}

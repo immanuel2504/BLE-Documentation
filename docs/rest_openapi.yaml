@@ -1,0 +1,582 @@
+openapi: 3.0.0
+
+info:
+  title: BLE API Reference - REST
+  version: 1.0.0
+  description: |
+    REST API for configuring and controlling Bluetooth Low Energy (BLE) scanning on the Zebra FXR90 fixed RFID reader.
+
+    ## Supported Protocols
+
+    | Protocol | Description |
+    |---|---|
+    | **iBeacon** | Apple proximity beacon — filter by UUID, major, minor, TX power |
+    | **AltBeacon** | Open beacon format — filter by manufacturer ID, beacon ID, major, minor, reference RSSI |
+    | **Eddystone** | Google beacon format — frame types: URL, UID, EID, TLM |
+    | **Generic BLE** | Standard BLE devices — filter by MAC address, address type, name, alias |
+
+    ## Workflow
+
+    1. **Configure BLE scanning** — Turn on the BLE scanner in the reader configuration by sending `PUT /cloud/ble-config` with `ble.enable` set to `true`. This step saves the configuration. It doesn't start scanning.
+    2. **Start** — `PUT /cloud/start` with `scanType: ["ble"]` to begin scanning.
+    3. **Collect** — BLE tag data events are published as advertisements are detected.
+    4. **Stop** — `PUT /cloud/stop` with `scanType: ["ble"]` to end scanning.
+    5. **Verify** — `GET /cloud/ble-config` at any time to inspect the current configuration.
+
+    ## Authentication
+
+    All endpoints require a Bearer token. Obtain a token with `GET /cloud/localRestLogin`, then include it in each REST request:
+    ```
+    Authorization: Bearer <token>
+    ```
+
+    ## Filter Logic
+
+    - Multiple filter entries within a protocol act as **OR** conditions.
+    - All fields within a single filter entry act as **AND** conditions.
+    - All four protocols can be active simultaneously.
+    - `additionalFilters` (RSSI, service UUIDs) apply across all protocols.
+
+servers:
+  - url: "http://<device-ip>:<port>"
+    description: FXR90 reader
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: BLE Configuration
+    description: Configure the BLE scanner — enable/disable scanning, set scan interval, apply RSSI and service UUID filters, and configure protocol-specific filters for iBeacon, AltBeacon, Eddystone, and generic BLE devices.
+  - name: Control Commands
+    description: Start and stop BLE scanning on the reader. BLE must be configured and enabled before starting.
+
+x-tagGroups:
+  - name: BLE Scanner
+    tags:
+      - BLE Configuration
+  - name: Control
+    tags:
+      - Control Commands
+
+paths:
+  /cloud/ble-config:
+    get:
+      tags:
+        - BLE Configuration
+      summary: Get BLE configuration
+      description: |
+        Retrieves the current Bluetooth Low Energy (BLE) scanner configuration from the reader.
+
+        Returns:
+        - Whether BLE scanning is enabled
+        - Scan interval setting
+        - RSSI filtering threshold
+        - iBeacon, AltBeacon, Eddystone, and generic BLE filter settings
+
+        **MQTT equivalent:** `get_bleConfig`
+      operationId: getBleConfig
+      responses:
+        '200':
+          description: Current BLE scanner configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/getBleConfigResponse'
+              examples:
+                ble_enabled_with_ibeacon:
+                  summary: BLE enabled with iBeacon filter
+                  value:
+                    ble:
+                      enable: true
+                      scanIntervalSec: 5
+                      protocols:
+                        iBeacon:
+                          enabled: true
+                          filters:
+                            - uuid: FDA50693-A4E2-4FB1-AFCF-C6EB07647825
+                              major: 10001
+                              minor: 20002
+                              txPower: -59
+                      additionalFilters:
+                        rssi: -80
+                ble_disabled:
+                  summary: BLE disabled
+                  value:
+                    ble:
+                      enable: false
+      security:
+        - bearerAuth: []
+
+    put:
+      tags:
+        - BLE Configuration
+      summary: Set BLE configuration
+      description: |
+        Configures the Bluetooth Low Energy (BLE) scanner on the reader.
+
+        The `ble.enable` field is required in every request. Optional fields control the scan interval, cross-protocol RSSI and service UUID filters, and protocol-specific settings.
+
+        Saving this configuration does not start BLE scanning — send `PUT /cloud/start` with `scanType: ["ble"]` to begin.
+
+        **MQTT equivalent:** `set_bleConfig`
+
+        ### Rules and Constraints
+
+        - `ble.enable` is required in every request, even when only updating filters.
+        - `scanIntervalSec` must be an integer ≥ 1.
+        - `additionalFilters.rssi` must be an integer in the range −127 to 0.
+        - Eddystone `frameType` must be one of `URL`, `UID`, `EID`, or `TLM`.
+        - All four protocols (iBeacon, AltBeacon, Eddystone, Generic) may be configured simultaneously.
+        - Multiple filter entries within a protocol act as OR conditions; all fields within one entry act as AND conditions.
+        - Configuration persists across reboots and MQTT reconnects.
+      operationId: setBleConfig
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/setBleConfigRequest'
+            examples:
+              enable_ble:
+                summary: Minimal — enable BLE
+                value:
+                  ble:
+                    enable: true
+              enable_with_interval:
+                summary: Enable with scan interval
+                value:
+                  ble:
+                    enable: true
+                    scanIntervalSec: 5
+              enable_with_rssi_filter:
+                summary: Enable with RSSI filter
+                value:
+                  ble:
+                    enable: true
+                    scanIntervalSec: 10
+                    additionalFilters:
+                      rssi: -70
+              enable_with_ibeacon:
+                summary: Enable with iBeacon filter
+                value:
+                  ble:
+                    enable: true
+                    scanIntervalSec: 5
+                    protocols:
+                      iBeacon:
+                        enabled: true
+                        filters:
+                          - uuid: FDA50693-A4E2-4FB1-AFCF-C6EB07647825
+                            major: 10001
+                            minor: 20002
+                            txPower: -59
+              enable_with_all_protocols:
+                summary: Enable with all four protocols
+                value:
+                  ble:
+                    enable: true
+                    scanIntervalSec: 5
+                    protocols:
+                      iBeacon:
+                        enabled: true
+                        filters:
+                          - uuid: FDA50693-A4E2-4FB1-AFCF-C6EB07647825
+                            major: 10001
+                            minor: 20002
+                            txPower: -59
+                      altBeacon:
+                        enabled: true
+                        filters:
+                          - mfgId: "0118"
+                            beaconId: 2F234454-CF6D-4A0F-ADF2-F4911BA9FFA7
+                            major: 4
+                            minor: 4
+                            refRssi: -100
+                      eddystone:
+                        enabled: true
+                        filters:
+                          - frameType: URL
+                            txPower: -59
+                            url: https://www.zebra.com
+                          - frameType: UID
+                            txPower: -18
+                            namespace: 0102030405060708090A
+                            instance: "000000000001"
+                          - frameType: EID
+                            txPower: -18
+                            ephemeralId: "0102030405060708"
+                      generic:
+                        enabled: true
+                        filters:
+                          - address: "7E:41:25:1E:D5:16"
+                            addressType: random
+                            name: BLEPeripheralApp
+                            alias: BLEPeripheralApp
+                    additionalFilters:
+                      rssi: -80
+                      serviceUuids16:
+                        - FEAA
+                        - FE9B
+                      serviceUuids128:
+                        - FDA50693-A4E2-4FB1-AFCF-C6EB07647825
+              disable_ble:
+                summary: Disable BLE
+                value:
+                  ble:
+                    enable: false
+      responses:
+        '200':
+          description: BLE configuration saved successfully
+      security:
+        - bearerAuth: []
+
+  /cloud/start:
+    put:
+      tags:
+        - Control Commands
+      summary: Start BLE scanning
+      description: |
+        Starts BLE scanning on the reader.
+
+        Use `scanType` to select which scan modes to activate:
+        - `["ble"]` — BLE scanning only
+        - `["ble", "rfid"]` — Combined BLE and RFID inventory
+
+        Before you start BLE scanning, turn on the BLE scanner in the reader configuration. Send `PUT /cloud/ble-config` and set `ble.enable` to `true`.
+
+        **MQTT equivalent:** `start`
+      operationId: startBleScan
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/startRequest'
+            examples:
+              start_ble_only:
+                summary: Start BLE scanning only
+                value:
+                  scanType:
+                    - ble
+              start_ble_and_rfid:
+                summary: Start BLE and RFID together
+                value:
+                  scanType:
+                    - ble
+                    - rfid
+      responses:
+        '200':
+          description: BLE scanning started successfully
+      security:
+        - bearerAuth: []
+
+  /cloud/stop:
+    put:
+      tags:
+        - Control Commands
+      summary: Stop BLE scanning
+      description: |
+        Stops BLE scanning on the reader.
+
+        Use `scanType` to select which scan modes to stop:
+        - `["ble"]` — Stop BLE scanning only
+        - `["ble", "rfid"]` — Stop both BLE and RFID
+
+        For BLE workflows, include `scanType`; do not rely on an empty body when your intent is to stop BLE scanning.
+
+        Always wait for the success response before issuing new configuration commands or restarting scanning.
+
+        **MQTT equivalent:** `stop`
+      operationId: stopBleScan
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/stopRequest'
+            examples:
+              stop_ble_only:
+                summary: Stop BLE scanning only
+                value:
+                  scanType:
+                    - ble
+              stop_all:
+                summary: Stop all scanning
+                value:
+                  scanType:
+                    - ble
+                    - rfid
+      responses:
+        '200':
+          description: BLE scanning stopped successfully
+      security:
+        - bearerAuth: []
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+
+  schemas:
+    getBleConfigResponse:
+      type: object
+      required:
+        - ble
+      properties:
+        ble:
+          type: object
+          properties:
+            enable:
+              type: boolean
+              description: Whether BLE scanning is enabled.
+              example: true
+            scanIntervalSec:
+              type: integer
+              description: How frequently the reader collects BLE scan results, in seconds.
+              example: 5
+            additionalFilters:
+              $ref: '#/components/schemas/bleAdditionalFilters'
+            protocols:
+              $ref: '#/components/schemas/bleProtocols'
+
+    setBleConfigRequest:
+      type: object
+      required:
+        - ble
+      properties:
+        ble:
+          type: object
+          required:
+            - enable
+          properties:
+            enable:
+              type: boolean
+              description: Enable or disable BLE scanning. Required in every request.
+              example: true
+            scanIntervalSec:
+              type: integer
+              minimum: 1
+              description: How frequently the reader collects BLE scan results, in seconds. Minimum value is 1.
+              example: 5
+            additionalFilters:
+              $ref: '#/components/schemas/bleAdditionalFilters'
+            protocols:
+              $ref: '#/components/schemas/bleProtocols'
+          additionalProperties: false
+      additionalProperties: false
+
+    bleAdditionalFilters:
+      type: object
+      description: Cross-protocol filters applied to all BLE advertisements.
+      properties:
+        rssi:
+          type: integer
+          minimum: -127
+          maximum: 0
+          description: Minimum RSSI threshold in dBm. Advertisements below this value are dropped. Range -127 to 0.
+          example: -70
+        serviceUuids16:
+          type: array
+          description: List of 16-bit service UUIDs to filter on.
+          items:
+            type: string
+          example:
+            - FEAA
+            - FE9B
+        serviceUuids128:
+          type: array
+          description: List of 128-bit service UUIDs to filter on.
+          items:
+            type: string
+          example:
+            - FDA50693-A4E2-4FB1-AFCF-C6EB07647825
+
+    bleProtocols:
+      type: object
+      description: Protocol-specific BLE scanner configurations.
+      properties:
+        iBeacon:
+          $ref: '#/components/schemas/iBeaconConfig'
+        altBeacon:
+          $ref: '#/components/schemas/altBeaconConfig'
+        eddystone:
+          $ref: '#/components/schemas/eddystoneConfig'
+        generic:
+          $ref: '#/components/schemas/genericBleConfig'
+
+    iBeaconConfig:
+      type: object
+      description: iBeacon (Apple proximity beacon) scanner configuration.
+      properties:
+        enabled:
+          type: boolean
+          description: Enable iBeacon scanning.
+          example: true
+        filters:
+          type: array
+          description: Filter by iBeacon advertisement fields. A beacon is forwarded if it matches any one filter entry.
+          items:
+            type: object
+            properties:
+              uuid:
+                type: string
+                description: Proximity UUID to match.
+                example: FDA50693-A4E2-4FB1-AFCF-C6EB07647825
+              major:
+                type: integer
+                description: Major value to match.
+                example: 10001
+              minor:
+                type: integer
+                description: Minor value to match.
+                example: 20002
+              txPower:
+                type: integer
+                description: Calibrated RSSI at 1 metre.
+                example: -59
+
+    altBeaconConfig:
+      type: object
+      description: AltBeacon (open beacon format) scanner configuration.
+      properties:
+        enabled:
+          type: boolean
+          description: Enable AltBeacon scanning.
+          example: true
+        filters:
+          type: array
+          description: Filter by AltBeacon advertisement fields. A beacon is forwarded if it matches any one filter entry.
+          items:
+            type: object
+            properties:
+              mfgId:
+                type: string
+                description: Manufacturer ID (hex string).
+                example: "0118"
+              beaconId:
+                type: string
+                description: Beacon ID (UUID string).
+                example: 2F234454-CF6D-4A0F-ADF2-F4911BA9FFA7
+              major:
+                type: integer
+                description: Major value to match.
+                example: 4
+              minor:
+                type: integer
+                description: Minor value to match.
+                example: 4
+              refRssi:
+                type: integer
+                description: Reference RSSI (TX power at 1 metre).
+                example: -100
+
+    eddystoneConfig:
+      type: object
+      description: Eddystone (Google beacon format) scanner configuration.
+      properties:
+        enabled:
+          type: boolean
+          description: Enable Eddystone scanning.
+          example: true
+        filters:
+          type: array
+          description: Filter by Eddystone frame fields. Use frameType to target a specific frame type. Frame-type-specific fields apply only to the matching frame type.
+          items:
+            type: object
+            properties:
+              frameType:
+                type: string
+                enum:
+                  - URL
+                  - UID
+                  - EID
+                  - TLM
+                description: Eddystone frame type to match.
+                example: URL
+              txPower:
+                type: integer
+                description: TX power at 0 m (calibrated RSSI).
+                example: -59
+              url:
+                type: string
+                description: Advertised URL to match (Eddystone-URL frames only).
+                example: https://www.zebra.com
+              namespace:
+                type: string
+                description: 10-byte namespace hex string to match (Eddystone-UID frames only).
+                example: 0102030405060708090A
+              instance:
+                type: string
+                description: 6-byte instance ID hex string to match (Eddystone-UID frames only).
+                example: "000000000001"
+              ephemeralId:
+                type: string
+                description: 8-byte ephemeral ID hex string to match (Eddystone-EID frames only).
+                example: "0102030405060708"
+
+    genericBleConfig:
+      type: object
+      description: Generic BLE device scanner configuration. Filters match on device-level advertisement fields.
+      properties:
+        enabled:
+          type: boolean
+          description: Enable generic BLE device scanning.
+          example: true
+        filters:
+          type: array
+          description: List of filter objects for generic BLE devices. A device is forwarded if it matches any one filter entry.
+          items:
+            type: object
+            properties:
+              address:
+                type: string
+                description: Bluetooth device MAC address to match.
+                example: "7E:41:25:1E:D5:16"
+              addressType:
+                type: string
+                enum:
+                  - public
+                  - random
+                description: Bluetooth address type to match.
+                example: random
+              name:
+                type: string
+                description: Device name to match against the Name field in the BLE advertisement.
+                example: BLEPeripheralApp
+              alias:
+                type: string
+                description: Device alias to match against the Alias field in the BLE advertisement.
+                example: BLEPeripheralApp
+
+    startRequest:
+      type: object
+      properties:
+        scanType:
+          type: array
+          description: Scan modes to activate. Use ["ble"] for BLE only, or ["ble", "rfid"] for combined BLE and RFID scanning.
+          items:
+            type: string
+            enum:
+              - ble
+              - rfid
+          example:
+            - ble
+      additionalProperties: false
+
+    stopRequest:
+      type: object
+      required:
+        - scanType
+      properties:
+        scanType:
+          type: array
+          description: Scan modes to stop. Use ["ble"] to stop BLE only, or ["ble", "rfid"] to stop both BLE and RFID. Include this field when stopping BLE scanning.
+          items:
+            type: string
+            enum:
+              - ble
+              - rfid
+          example:
+            - ble
+      additionalProperties: false

@@ -1,0 +1,154 @@
+{
+  "title": "get_bleConfig Response",
+  "description": "Returns the current BLE scanner configuration.",
+  "type": "object",
+  "required": ["command", "command_id", "response", "payload"],
+  "properties": {
+    "command": {
+      "type": "string",
+      "const": "get_bleConfig",
+      "description": "Echoed command name"
+    },
+    "command_id": {
+      "type": "string",
+      "description": "Echoed command ID from the request"
+    },
+    "response": {
+      "type": "string",
+      "enum": ["success", "failure"],
+      "description": "Command result status"
+    },
+    "payload": {
+      "type": "object",
+      "description": "BLE configuration payload on success, or error details on failure.",
+      "properties": {
+        "ble": {
+          "type": "object",
+          "properties": {
+            "enable": { "type": "boolean" },
+            "scanIntervalSec": { "type": "integer" },
+            "additionalFilters": {
+              "type": "object",
+              "properties": {
+                "rssi": { "type": "integer" },
+                "serviceUuids16": { "type": "array", "items": { "type": "string" } },
+                "serviceUuids128": { "type": "array", "items": { "type": "string" } }
+              }
+            },
+            "protocols": {
+              "type": "object",
+              "properties": {
+                "iBeacon": {
+                  "type": "object",
+                  "properties": {
+                    "enabled": { "type": "boolean" },
+                    "filters": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "uuid": { "type": "string" },
+                          "major": { "type": "integer" },
+                          "minor": { "type": "integer" },
+                          "txPower": { "type": "integer" }
+                        }
+                      }
+                    }
+                  }
+                },
+                "altBeacon": {
+                  "type": "object",
+                  "properties": {
+                    "enabled": { "type": "boolean" },
+                    "filters": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "mfgId": { "type": "string" },
+                          "beaconId": { "type": "string" },
+                          "major": { "type": "integer" },
+                          "minor": { "type": "integer" },
+                          "refRssi": { "type": "integer" }
+                        }
+                      }
+                    }
+                  }
+                },
+                "eddystone": {
+                  "type": "object",
+                  "properties": {
+                    "enabled": { "type": "boolean" },
+                    "filters": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "frameType": { "type": "string", "enum": ["URL", "UID", "EID", "TLM"] },
+                          "txPower": { "type": "integer" },
+                          "url": { "type": "string" },
+                          "namespace": { "type": "string" },
+                          "instance": { "type": "string" },
+                          "ephemeralId": { "type": "string" }
+                        }
+                      }
+                    }
+                  }
+                },
+                "generic": {
+                  "type": "object",
+                  "properties": {
+                    "enabled": { "type": "boolean" },
+                    "filters": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "address": { "type": "string" },
+                          "addressType": { "type": "string", "enum": ["public", "random"] },
+                          "name": { "type": "string" },
+                          "alias": { "type": "string" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "command": "get_bleConfig",
+      "command_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "response": "success",
+      "payload": {
+        "ble": {
+          "enable": true,
+          "scanIntervalSec": 5,
+          "protocols": {
+            "iBeacon": {
+              "enabled": true,
+              "filters": [
+                {
+                  "uuid": "FDA50693-A4E2-4FB1-AFCF-C6EB07647825",
+                  "major": 10001,
+                  "minor": 20002,
+                  "txPower": -59
+                }
+              ]
+            }
+          },
+          "additionalFilters": {
+            "rssi": -80,
+            "serviceUuids16": ["FEAA", "FE9B"],
+            "serviceUuids128": ["FDA50693-A4E2-4FB1-AFCF-C6EB07647825"]
+          }
+        }
+      }
+    }
+  ]
+}

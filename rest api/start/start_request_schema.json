@@ -1,0 +1,25 @@
+{
+  "title": "Start BLE Scan Request",
+  "description": "Request payload for starting BLE scanning. Use scanType to control which scan modes are activated.",
+  "type": "object",
+  "properties": {
+    "scanType": {
+      "type": "array",
+      "description": "Scan modes to activate. Use [\"ble\"] for BLE only, or [\"ble\", \"rfid\"] for combined BLE and RFID scanning.",
+      "items": {
+        "type": "string",
+        "enum": ["ble", "rfid"]
+      },
+      "example": ["ble"]
+    }
+  },
+  "additionalProperties": false,
+  "examples": [
+    {
+      "scanType": ["ble"]
+    },
+    {
+      "scanType": ["ble", "rfid"]
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "title": "Start BLE Scan Response",
+  "description": "Empty object returned when BLE scanning has started successfully.",
+  "type": "object",
+  "properties": {},
+  "additionalProperties": false,
+  "examples": [
+    {}
+  ]
+}

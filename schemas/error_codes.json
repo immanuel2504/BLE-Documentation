@@ -1,0 +1,55 @@
+{
+  "codes": [
+    {
+      "code": 0,
+      "description": "Success",
+      "iot_status_code": "SUCCESS",
+      "commands": ["*"],
+      "cause": "",
+      "recommended_action": ""
+    },
+    {
+      "code": 1,
+      "description": "General failure",
+      "iot_status_code": "GENERAL_FAILURE",
+      "commands": [
+        "get_bleConfig",
+        "set_bleConfig",
+        "start",
+        "stop"
+      ],
+      "cause": "Internal error or invalid payload",
+      "recommended_action": "Check the payload format and retry"
+    },
+    {
+      "code": 2,
+      "description": "BLE not configured",
+      "iot_status_code": "BLE_NOT_CONFIGURED",
+      "commands": [
+        "start"
+      ],
+      "cause": "BLE scanning was requested but ble.enable has not been set to true via set_bleConfig",
+      "recommended_action": "Send set_bleConfig with ble.enable set to true before starting BLE scanning"
+    },
+    {
+      "code": 3,
+      "description": "Invalid scan interval",
+      "iot_status_code": "INVALID_SCAN_INTERVAL",
+      "commands": [
+        "set_bleConfig"
+      ],
+      "cause": "scanIntervalSec value is below the minimum of 1",
+      "recommended_action": "Provide a scanIntervalSec value of 1 or greater"
+    },
+    {
+      "code": 4,
+      "description": "Scanner busy",
+      "iot_status_code": "SCANNER_BUSY",
+      "commands": [
+        "start"
+      ],
+      "cause": "BLE scanning is already active",
+      "recommended_action": "Stop the current scan first, then retry"
+    }
+  ]
+}

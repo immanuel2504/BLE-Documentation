@@ -1,0 +1,154 @@
+{
+  "title": "Get BLE Configuration Response",
+  "description": "Returns the current BLE scanner configuration stored on the reader.",
+  "type": "object",
+  "required": ["ble"],
+  "properties": {
+    "ble": {
+      "type": "object",
+      "properties": {
+        "enable": {
+          "type": "boolean",
+          "example": true
+        },
+        "scanIntervalSec": {
+          "type": "integer",
+          "example": 5
+        },
+        "additionalFilters": {
+          "type": "object",
+          "properties": {
+            "rssi": {
+              "type": "integer",
+              "example": -80
+            },
+            "serviceUuids16": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "serviceUuids128": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          }
+        },
+        "protocols": {
+          "type": "object",
+          "description": "Protocol-specific BLE scanner configurations.",
+          "properties": {
+            "iBeacon": {
+              "type": "object",
+              "properties": {
+                "enabled": { "type": "boolean" },
+                "filters": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "uuid": { "type": "string", "description": "Proximity UUID." },
+                      "major": { "type": "integer" },
+                      "minor": { "type": "integer" },
+                      "txPower": { "type": "integer", "description": "Calibrated RSSI at 1 metre." }
+                    }
+                  }
+                }
+              }
+            },
+            "altBeacon": {
+              "type": "object",
+              "properties": {
+                "enabled": { "type": "boolean" },
+                "filters": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "mfgId": { "type": "string", "description": "Manufacturer ID (hex string)." },
+                      "beaconId": { "type": "string", "description": "Beacon ID (UUID string)." },
+                      "major": { "type": "integer" },
+                      "minor": { "type": "integer" },
+                      "refRssi": { "type": "integer", "description": "Reference RSSI at 1 metre." }
+                    }
+                  }
+                }
+              }
+            },
+            "eddystone": {
+              "type": "object",
+              "properties": {
+                "enabled": { "type": "boolean" },
+                "filters": {
+                  "type": "array",
+                  "description": "Filter by Eddystone frame fields.",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "frameType": {
+                        "type": "string",
+                        "enum": ["URL", "UID", "EID", "TLM"]
+                      },
+                      "txPower": { "type": "integer" },
+                      "url": { "type": "string", "description": "Advertised URL (Eddystone-URL only)." },
+                      "namespace": { "type": "string", "description": "10-byte namespace hex string (Eddystone-UID only)." },
+                      "instance": { "type": "string", "description": "6-byte instance ID hex string (Eddystone-UID only)." },
+                      "ephemeralId": { "type": "string", "description": "8-byte ephemeral ID hex string (Eddystone-EID only)." }
+                    }
+                  }
+                }
+              }
+            },
+            "generic": {
+              "type": "object",
+              "description": "Configuration for generic BLE devices.",
+              "properties": {
+                "enabled": { "type": "boolean" },
+                "filters": {
+                  "type": "array",
+                  "description": "List of filter objects for generic BLE devices.",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "address": { "type": "string", "description": "Bluetooth device MAC address." },
+                      "addressType": {
+                        "type": "string",
+                        "enum": ["public", "random"]
+                      },
+                      "name": { "type": "string" },
+                      "alias": { "type": "string" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "ble": {
+        "enable": true,
+        "scanIntervalSec": 5,
+        "protocols": {
+          "iBeacon": {
+            "enabled": true,
+            "filters": [
+              {
+                "uuid": "FDA50693-A4E2-4FB1-AFCF-C6EB07647825",
+                "major": 10001,
+                "minor": 20002,
+                "txPower": -59
+              }
+            ]
+          }
+        },
+        "additionalFilters": {
+          "rssi": -80,
+          "serviceUuids16": ["FEAA", "FE9B"],
+          "serviceUuids128": ["FDA50693-A4E2-4FB1-AFCF-C6EB07647825"]
+        }
+      }
+    }
+  ]
+}

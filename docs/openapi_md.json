@@ -1,0 +1,1125 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "BLE API Reference",
+    "version": "1.0.0",
+    "description": "MQTT and REST API for configuring and controlling Bluetooth Low Energy (BLE) scanning on the Zebra FXR90 fixed RFID reader.\n\n## Overview\n\nThe FXR90 reader supports passive BLE advertisement scanning. Configure BLE first, verify the saved configuration, and then start scanning when the reader is ready to collect BLE advertisements.\n\n## Supported beacon protocols\n\n| Protocol | Description |\n|---|---|\n| **iBeacon** | Apple proximity beacon standard. Filter by UUID, major, minor, and TX power. |\n| **AltBeacon** | Open beacon format. Filter by manufacturer ID, beacon ID, major, minor, and reference RSSI. |\n| **Eddystone** | Google beacon format. Filter by frame type such as URL, UID, EID, or TLM, and use frame-specific fields. |\n| **Generic BLE** | Standard BLE device advertisements. Filter by MAC address, address type, device name, or alias. |\n\n## REST workflow\n\nUse REST when you integrate directly with the reader over HTTPS.\n\n1. **Configure BLE scanning.** Send `PUT /cloud/ble-config` with `ble.enable` set to `true`. This request saves the BLE configuration. It does not start scanning.\n2. **Verify the configuration.** Send `GET /cloud/ble-config` and confirm that `ble.enable` is `true`.\n3. **Start BLE scanning.** Send `PUT /cloud/start` with `scanType: [\"ble\"]`.\n4. **Collect BLE events.** The reader publishes BLE advertisement events as it detects beacons.\n5. **Stop BLE scanning.** Send `PUT /cloud/stop` with `scanType: [\"ble\"]`.\n\n### Authentication\n\nAll REST endpoints require a Bearer token. Send `GET /cloud/localRestLogin` to get a token, and then include the token in each REST request:\n\n```\nAuthorization: Bearer <token>\n```\n\n## MQTT workflow\n\nUse MQTT when you send commands through the reader's command topic.\n\n1. **Configure BLE scanning.** Send `set_bleConfig` with `payload.ble.enable` set to `true`. This command saves the BLE configuration. It does not start scanning.\n2. **Verify the configuration.** Send `get_bleConfig` and confirm that `payload.ble.enable` is `true`.\n3. **Start BLE scanning.** Send `start` with `scanType: [\"ble\"]`.\n4. **Collect BLE events.** The reader publishes BLE advertisement events as it detects beacons.\n5. **Stop BLE scanning.** Send `stop` with `scanType: [\"ble\"]`."
+  },
+  "tags": [
+    {
+      "name": "BLE Configuration",
+      "description": "Use these commands to configure the Bluetooth Low Energy scanner on the FXR90 reader. Set the scan interval, apply RSSI and service UUID filters, and enable protocol-specific detection for iBeacon, AltBeacon, Eddystone, and generic BLE devices. Configuration must be saved before starting a BLE scan."
+    },
+    {
+      "name": "Control Commands",
+      "description": "Use the control commands to start and stop BLE scanning on the reader. BLE must be configured with `set_bleConfig` and `ble.enable` set to `true` before issuing `start`. Use `scanType` to start or stop BLE scanning."
+    }
+  ],
+  "x-tagGroups": [
+    {
+      "name": "BLE Scanner",
+      "tags": [
+        "BLE Configuration"
+      ]
+    },
+    {
+      "name": "Control",
+      "tags": [
+        "Control Commands"
+      ]
+    }
+  ],
+  "paths": {
+    "/get_bleConfig": {
+      "post": {
+        "tags": [
+          "BLE Configuration"
+        ],
+        "summary": "Get BLE Configuration",
+        "description": "**Description:**\nRetrieves the current Bluetooth Low Energy (BLE) scanner configuration stored on the reader.\n\n**Usage:**\nSend this command with an empty payload to check the current BLE configuration. Use the response to confirm that BLE scanning is enabled, review scan interval and filter settings, or verify the result of a previous `set_bleConfig` command.\n\n**Parameters (MQTT & REST):**\n\n_No parameters required._\n\n<div class=\"endpoint-block\"><div class=\"ep-heading ep-mqtt\">MQTT Endpoint Details</div><table class=\"endpoint-table\"><tbody><tr><td>Command</td><td><code>get_bleConfig</code></td></tr></tbody></table></div>\n\n<div class=\"endpoint-block\"><div class=\"ep-heading ep-rest\">REST Endpoint Details</div><table class=\"endpoint-table\"><tbody><tr><td>Method</td><td><span class=\"ep-method ep-method-get\">GET</span></td></tr><tr><td>Path</td><td><code>/cloud/ble-config</code></td></tr><tr><td>Request URL</td><td><code>https://&lt;device-ip&gt;/cloud/ble-config</code></td></tr><tr><td>Content-Type</td><td><code>application/json</code></td></tr></tbody></table></div>",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "command",
+                  "command_id",
+                  "payload"
+                ],
+                "properties": {
+                  "command": {
+                    "type": "string",
+                    "description": "MQTT command name",
+                    "enum": [
+                      "get_bleConfig"
+                    ]
+                  },
+                  "command_id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "Unique identifier to correlate this request with its response"
+                  },
+                  "payload": {
+                    "type": "object",
+                    "description": "Empty payload — no additional parameters required.",
+                    "additionalProperties": false
+                  }
+                }
+              },
+              "examples": {
+                "example1": {
+                  "value": {
+                    "command": "get_bleConfig",
+                    "command_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                    "payload": {}
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "description": "get_bleConfig response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "command",
+                    "command_id",
+                    "response",
+                    "payload"
+                  ],
+                  "properties": {
+                    "command": {
+                      "type": "string",
+                      "description": "Echoed command name",
+                      "enum": [
+                        "get_bleConfig"
+                      ]
+                    },
+                    "command_id": {
+                      "type": "string",
+                      "description": "Echoed command ID from the request"
+                    },
+                    "response": {
+                      "type": "string",
+                      "enum": [
+                        "success",
+                        "failure"
+                      ],
+                      "description": "Command result status"
+                    },
+                    "payload": {
+                      "type": "object",
+                      "description": "BLE configuration payload on success, or error details on failure.",
+                      "properties": {
+                        "ble": {
+                          "type": "object",
+                          "properties": {
+                            "enable": {
+                              "type": "boolean"
+                            },
+                            "scanIntervalSec": {
+                              "type": "integer"
+                            },
+                            "additionalFilters": {
+                              "type": "object",
+                              "properties": {
+                                "rssi": {
+                                  "type": "integer"
+                                },
+                                "serviceUuids16": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                },
+                                "serviceUuids128": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                }
+                              }
+                            },
+                            "protocols": {
+                              "type": "object",
+                              "properties": {
+                                "iBeacon": {
+                                  "type": "object",
+                                  "properties": {
+                                    "enabled": {
+                                      "type": "boolean"
+                                    },
+                                    "filters": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "object",
+                                        "properties": {
+                                          "uuid": {
+                                            "type": "string"
+                                          },
+                                          "major": {
+                                            "type": "integer"
+                                          },
+                                          "minor": {
+                                            "type": "integer"
+                                          },
+                                          "txPower": {
+                                            "type": "integer"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                },
+                                "altBeacon": {
+                                  "type": "object",
+                                  "properties": {
+                                    "enabled": {
+                                      "type": "boolean"
+                                    },
+                                    "filters": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "object",
+                                        "properties": {
+                                          "mfgId": {
+                                            "type": "string"
+                                          },
+                                          "beaconId": {
+                                            "type": "string"
+                                          },
+                                          "major": {
+                                            "type": "integer"
+                                          },
+                                          "minor": {
+                                            "type": "integer"
+                                          },
+                                          "refRssi": {
+                                            "type": "integer"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                },
+                                "eddystone": {
+                                  "type": "object",
+                                  "properties": {
+                                    "enabled": {
+                                      "type": "boolean"
+                                    },
+                                    "filters": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "object",
+                                        "properties": {
+                                          "frameType": {
+                                            "type": "string",
+                                            "enum": [
+                                              "URL",
+                                              "UID",
+                                              "EID",
+                                              "TLM"
+                                            ]
+                                          },
+                                          "txPower": {
+                                            "type": "integer"
+                                          },
+                                          "url": {
+                                            "type": "string"
+                                          },
+                                          "namespace": {
+                                            "type": "string"
+                                          },
+                                          "instance": {
+                                            "type": "string"
+                                          },
+                                          "ephemeralId": {
+                                            "type": "string"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                },
+                                "generic": {
+                                  "type": "object",
+                                  "properties": {
+                                    "enabled": {
+                                      "type": "boolean"
+                                    },
+                                    "filters": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "object",
+                                        "properties": {
+                                          "address": {
+                                            "type": "string"
+                                          },
+                                          "addressType": {
+                                            "type": "string",
+                                            "enum": [
+                                              "public",
+                                              "random"
+                                            ]
+                                          },
+                                          "name": {
+                                            "type": "string"
+                                          },
+                                          "alias": {
+                                            "type": "string"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "examples": {
+                  "example1": {
+                    "value": {
+                      "command": "get_bleConfig",
+                      "command_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                      "response": "success",
+                      "payload": {
+                        "ble": {
+                          "enable": true,
+                          "scanIntervalSec": 5,
+                          "protocols": {
+                            "iBeacon": {
+                              "enabled": true,
+                              "filters": [
+                                {
+                                  "uuid": "FDA50693-A4E2-4FB1-AFCF-C6EB07647825",
+                                  "major": 10001,
+                                  "minor": 20002,
+                                  "txPower": -59
+                                }
+                              ]
+                            }
+                          },
+                          "additionalFilters": {
+                            "rssi": -80,
+                            "serviceUuids16": [
+                              "FEAA",
+                              "FE9B"
+                            ],
+                            "serviceUuids128": [
+                              "FDA50693-A4E2-4FB1-AFCF-C6EB07647825"
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          {
+            "code": 0,
+            "description": "Success",
+            "iot_status_code": "SUCCESS",
+            "cause": "",
+            "recommended_action": ""
+          },
+          {
+            "code": 1,
+            "description": "General failure",
+            "iot_status_code": "GENERAL_FAILURE",
+            "cause": "Internal error or invalid payload",
+            "recommended_action": "Check the payload format and retry"
+          }
+        ]
+      }
+    },
+    "/set_bleConfig": {
+      "post": {
+        "tags": [
+          "BLE Configuration"
+        ],
+        "summary": "Set BLE Configuration",
+        "description": "**Description:**\nConfigures the Bluetooth Low Energy (BLE) scanner on the reader.\n\n**Usage:**\nSend this command before you start BLE scanning. Set `ble.enable` to `true` to turn on BLE scanning in the reader configuration. You can also include optional settings such as scan interval, RSSI filters, service UUID filters, and protocol-specific filters for iBeacon, AltBeacon, Eddystone, and generic BLE devices. This command saves the BLE configuration but does not start scanning.\n\n**Parameters (MQTT & REST):**\n\n- **ble.enable** (boolean): Set to `true` to enable BLE scanning in the reader configuration. Set to `false` to disable BLE scanning.\n- **ble.scanIntervalSec** (integer, optional): Scan interval in seconds. The minimum value is `1`.\n- **ble.additionalFilters** (object, optional): Filters that apply across BLE advertisements, such as RSSI and service UUID filters.\n- **ble.protocols** (object, optional): Protocol-specific filters for iBeacon, AltBeacon, Eddystone, and generic BLE devices.\n\n<div class=\"endpoint-block\"><div class=\"ep-heading ep-mqtt\">MQTT Endpoint Details</div><table class=\"endpoint-table\"><tbody><tr><td>Command</td><td><code>set_bleConfig</code></td></tr></tbody></table></div>\n\n<div class=\"endpoint-block\"><div class=\"ep-heading ep-rest\">REST Endpoint Details</div><table class=\"endpoint-table\"><tbody><tr><td>Method</td><td><span class=\"ep-method ep-method-put\">PUT</span></td></tr><tr><td>Path</td><td><code>/cloud/ble-config</code></td></tr><tr><td>Request URL</td><td><code>https://&lt;device-ip&gt;/cloud/ble-config</code></td></tr><tr><td>Content-Type</td><td><code>application/json</code></td></tr></tbody></table></div>",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "command",
+                  "command_id",
+                  "payload"
+                ],
+                "properties": {
+                  "command": {
+                    "type": "string",
+                    "description": "MQTT command name",
+                    "enum": [
+                      "set_bleConfig"
+                    ]
+                  },
+                  "command_id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "Unique identifier to correlate this request with its response"
+                  },
+                  "payload": {
+                    "type": "object",
+                    "required": [
+                      "ble"
+                    ],
+                    "properties": {
+                      "ble": {
+                        "type": "object",
+                        "required": [
+                          "enable"
+                        ],
+                        "properties": {
+                          "enable": {
+                            "type": "boolean",
+                            "description": "Enable or disable BLE scanning. Required in every request.",
+                            "example": true
+                          },
+                          "scanIntervalSec": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "description": "How frequently the reader collects BLE scan results, in seconds. Minimum value is 1.",
+                            "example": 5
+                          },
+                          "additionalFilters": {
+                            "type": "object",
+                            "description": "Cross-protocol filters applied to all BLE advertisements.",
+                            "properties": {
+                              "rssi": {
+                                "type": "integer",
+                                "minimum": -127,
+                                "maximum": 0,
+                                "description": "Minimum RSSI threshold in dBm. Range: -127 to 0.",
+                                "example": -70
+                              },
+                              "serviceUuids16": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                },
+                                "example": [
+                                  "FEAA",
+                                  "FE9B"
+                                ]
+                              },
+                              "serviceUuids128": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                },
+                                "example": [
+                                  "FDA50693-A4E2-4FB1-AFCF-C6EB07647825"
+                                ]
+                              }
+                            }
+                          },
+                          "protocols": {
+                            "type": "object",
+                            "description": "Protocol-specific BLE scanner configurations.",
+                            "properties": {
+                              "iBeacon": {
+                                "type": "object",
+                                "properties": {
+                                  "enabled": {
+                                    "type": "boolean",
+                                    "example": true
+                                  },
+                                  "filters": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "object",
+                                      "properties": {
+                                        "uuid": {
+                                          "type": "string",
+                                          "description": "Proximity UUID.",
+                                          "example": "FDA50693-A4E2-4FB1-AFCF-C6EB07647825"
+                                        },
+                                        "major": {
+                                          "type": "integer",
+                                          "example": 10001
+                                        },
+                                        "minor": {
+                                          "type": "integer",
+                                          "example": 20002
+                                        },
+                                        "txPower": {
+                                          "type": "integer",
+                                          "description": "Calibrated RSSI at 1 metre.",
+                                          "example": -59
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              "altBeacon": {
+                                "type": "object",
+                                "properties": {
+                                  "enabled": {
+                                    "type": "boolean",
+                                    "example": true
+                                  },
+                                  "filters": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "object",
+                                      "properties": {
+                                        "mfgId": {
+                                          "type": "string",
+                                          "description": "Manufacturer ID (hex string).",
+                                          "example": "0118"
+                                        },
+                                        "beaconId": {
+                                          "type": "string",
+                                          "description": "Beacon ID (UUID string).",
+                                          "example": "2F234454-CF6D-4A0F-ADF2-F4911BA9FFA7"
+                                        },
+                                        "major": {
+                                          "type": "integer",
+                                          "example": 4
+                                        },
+                                        "minor": {
+                                          "type": "integer",
+                                          "example": 4
+                                        },
+                                        "refRssi": {
+                                          "type": "integer",
+                                          "description": "Reference RSSI at 1 metre.",
+                                          "example": -100
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              "eddystone": {
+                                "type": "object",
+                                "properties": {
+                                  "enabled": {
+                                    "type": "boolean",
+                                    "example": true
+                                  },
+                                  "filters": {
+                                    "type": "array",
+                                    "description": "Filter by Eddystone frame fields. Use frameType to target a specific frame type.",
+                                    "items": {
+                                      "type": "object",
+                                      "properties": {
+                                        "frameType": {
+                                          "type": "string",
+                                          "enum": [
+                                            "URL",
+                                            "UID",
+                                            "EID",
+                                            "TLM"
+                                          ],
+                                          "example": "URL"
+                                        },
+                                        "txPower": {
+                                          "type": "integer",
+                                          "example": -59
+                                        },
+                                        "url": {
+                                          "type": "string",
+                                          "description": "Advertised URL (Eddystone-URL only).",
+                                          "example": "https://www.zebra.com"
+                                        },
+                                        "namespace": {
+                                          "type": "string",
+                                          "description": "10-byte namespace hex string (Eddystone-UID only).",
+                                          "example": "0102030405060708090A"
+                                        },
+                                        "instance": {
+                                          "type": "string",
+                                          "description": "6-byte instance ID hex string (Eddystone-UID only).",
+                                          "example": "000000000001"
+                                        },
+                                        "ephemeralId": {
+                                          "type": "string",
+                                          "description": "8-byte ephemeral ID hex string (Eddystone-EID only).",
+                                          "example": "0102030405060708"
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              "generic": {
+                                "type": "object",
+                                "description": "Configuration for generic BLE devices.",
+                                "properties": {
+                                  "enabled": {
+                                    "type": "boolean",
+                                    "example": true
+                                  },
+                                  "filters": {
+                                    "type": "array",
+                                    "description": "A device is forwarded if it matches any one filter entry.",
+                                    "items": {
+                                      "type": "object",
+                                      "properties": {
+                                        "address": {
+                                          "type": "string",
+                                          "description": "Bluetooth MAC address.",
+                                          "example": "7E:41:25:1E:D5:16"
+                                        },
+                                        "addressType": {
+                                          "type": "string",
+                                          "enum": [
+                                            "public",
+                                            "random"
+                                          ],
+                                          "example": "random"
+                                        },
+                                        "name": {
+                                          "type": "string",
+                                          "example": "BLEPeripheralApp"
+                                        },
+                                        "alias": {
+                                          "type": "string",
+                                          "example": "BLEPeripheralApp"
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "examples": {
+                "Enable BLE": {
+                  "description": "Enables BLE scanning in the reader configuration.",
+                  "value": {
+                    "command": "set_bleConfig",
+                    "command_id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+                    "payload": {
+                      "ble": {
+                        "enable": true
+                      }
+                    }
+                  }
+                },
+                "Set scan interval": {
+                  "description": "Enables BLE scanning and sets the BLE scan interval.",
+                  "value": {
+                    "command": "set_bleConfig",
+                    "command_id": "c3d4e5f6-a7b8-9012-cdef-123456789012",
+                    "payload": {
+                      "ble": {
+                        "enable": true,
+                        "scanIntervalSec": 5
+                      }
+                    }
+                  }
+                },
+                "Apply RSSI filter": {
+                  "description": "Enables BLE scanning and filters advertisements by minimum RSSI.",
+                  "value": {
+                    "command": "set_bleConfig",
+                    "command_id": "d4e5f6a7-b8c9-0123-defa-234567890123",
+                    "payload": {
+                      "ble": {
+                        "enable": true,
+                        "scanIntervalSec": 10,
+                        "additionalFilters": {
+                          "rssi": -70
+                        }
+                      }
+                    }
+                  }
+                },
+                "Configure protocol filters": {
+                  "description": "Enables BLE scanning with iBeacon, AltBeacon, Eddystone, generic BLE, RSSI, and service UUID filters.",
+                  "value": {
+                    "command": "set_bleConfig",
+                    "command_id": "e5f6a7b8-c9d0-1234-efab-345678901234",
+                    "payload": {
+                      "ble": {
+                        "enable": true,
+                        "scanIntervalSec": 5,
+                        "protocols": {
+                          "iBeacon": {
+                            "enabled": true,
+                            "filters": [
+                              {
+                                "uuid": "FDA50693-A4E2-4FB1-AFCF-C6EB07647825",
+                                "major": 10001,
+                                "minor": 20002,
+                                "txPower": -59
+                              }
+                            ]
+                          },
+                          "altBeacon": {
+                            "enabled": true,
+                            "filters": [
+                              {
+                                "mfgId": "0118",
+                                "beaconId": "2F234454-CF6D-4A0F-ADF2-F4911BA9FFA7",
+                                "major": 4,
+                                "minor": 4,
+                                "refRssi": -100
+                              }
+                            ]
+                          },
+                          "eddystone": {
+                            "enabled": true,
+                            "filters": [
+                              {
+                                "frameType": "URL",
+                                "txPower": -59,
+                                "url": "https://www.zebra.com"
+                              },
+                              {
+                                "frameType": "UID",
+                                "txPower": -18,
+                                "namespace": "0102030405060708090A",
+                                "instance": "000000000001"
+                              },
+                              {
+                                "frameType": "EID",
+                                "txPower": -18,
+                                "ephemeralId": "0102030405060708"
+                              }
+                            ]
+                          },
+                          "generic": {
+                            "enabled": true,
+                            "filters": [
+                              {
+                                "address": "7E:41:25:1E:D5:16",
+                                "addressType": "random",
+                                "name": "BLEPeripheralApp",
+                                "alias": "BLEPeripheralApp"
+                              }
+                            ]
+                          }
+                        },
+                        "additionalFilters": {
+                          "rssi": -80,
+                          "serviceUuids16": [
+                            "FEAA",
+                            "FE9B"
+                          ],
+                          "serviceUuids128": [
+                            "FDA50693-A4E2-4FB1-AFCF-C6EB07647825"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                },
+                "Disable BLE": {
+                  "description": "Disables BLE scanning in the reader configuration.",
+                  "value": {
+                    "command": "set_bleConfig",
+                    "command_id": "f6a7b8c9-d0e1-2345-fabc-456789012345",
+                    "payload": {
+                      "ble": {
+                        "enable": false
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "description": "set_bleConfig response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "command",
+                    "command_id",
+                    "response",
+                    "payload"
+                  ],
+                  "properties": {
+                    "command": {
+                      "type": "string",
+                      "description": "Echoed command name",
+                      "enum": [
+                        "set_bleConfig"
+                      ]
+                    },
+                    "command_id": {
+                      "type": "string",
+                      "description": "Echoed command ID from the request"
+                    },
+                    "response": {
+                      "type": "string",
+                      "enum": [
+                        "success",
+                        "failure"
+                      ],
+                      "description": "Command result status"
+                    },
+                    "payload": {
+                      "type": "object",
+                      "description": "Empty object on success, or error details on failure."
+                    }
+                  }
+                },
+                "examples": {
+                  "example1": {
+                    "value": {
+                      "command": "set_bleConfig",
+                      "command_id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+                      "response": "success",
+                      "payload": {}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          {
+            "code": 0,
+            "description": "Success",
+            "iot_status_code": "SUCCESS",
+            "cause": "",
+            "recommended_action": ""
+          },
+          {
+            "code": 1,
+            "description": "General failure",
+            "iot_status_code": "GENERAL_FAILURE",
+            "cause": "Internal error or invalid payload",
+            "recommended_action": "Check the payload format and retry"
+          },
+          {
+            "code": 3,
+            "description": "Invalid scan interval",
+            "iot_status_code": "INVALID_SCAN_INTERVAL",
+            "cause": "scanIntervalSec value is below the minimum of 1",
+            "recommended_action": "Provide a scanIntervalSec value of 1 or greater"
+          }
+        ]
+      }
+    },
+    "/start": {
+      "post": {
+        "tags": [
+          "Control Commands"
+        ],
+        "summary": "Start BLE Scanning",
+        "description": "**Description:**\nStarts BLE scanning on the reader.\n\n**Usage:**\nSend this command after you save the BLE configuration with `set_bleConfig`. Set `scanType` to `[\"ble\"]` to start BLE scanning. If BLE is not enabled in the saved configuration, the reader does not scan for BLE advertisements.\n\n**Parameters (MQTT & REST):**\n\n- **scanType** (array): Scan modes to start. Use `[\"ble\"]` to start BLE scanning.\n\n<div class=\"endpoint-block\"><div class=\"ep-heading ep-mqtt\">MQTT Endpoint Details</div><table class=\"endpoint-table\"><tbody><tr><td>Command</td><td><code>start</code></td></tr></tbody></table></div>\n\n<div class=\"endpoint-block\"><div class=\"ep-heading ep-rest\">REST Endpoint Details</div><table class=\"endpoint-table\"><tbody><tr><td>Method</td><td><span class=\"ep-method ep-method-put\">PUT</span></td></tr><tr><td>Path</td><td><code>/cloud/start</code></td></tr><tr><td>Request URL</td><td><code>https://&lt;device-ip&gt;/cloud/start</code></td></tr><tr><td>Content-Type</td><td><code>application/json</code></td></tr></tbody></table></div>",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "command",
+                  "command_id",
+                  "payload"
+                ],
+                "properties": {
+                  "command": {
+                    "type": "string",
+                    "description": "MQTT command name",
+                    "enum": [
+                      "start"
+                    ]
+                  },
+                  "command_id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "Unique identifier to correlate this request with its response"
+                  },
+                  "payload": {
+                    "type": "object",
+                    "properties": {
+                      "scanType": {
+                        "type": "array",
+                        "description": "Scan modes to activate. Use [\"ble\"] to start BLE scanning.",
+                        "items": {
+                          "type": "string",
+                          "enum": [
+                            "ble"
+                          ]
+                        },
+                        "example": [
+                          "ble"
+                        ]
+                      }
+                    }
+                  }
+                }
+              },
+              "examples": {
+                "Start BLE only": {
+                  "description": "Starts BLE scanning only.",
+                  "value": {
+                    "command": "start",
+                    "command_id": "a1b2c3d4-0001-4000-8001-aabbccddeeff",
+                    "payload": {
+                      "scanType": [
+                        "ble"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "description": "start response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "command",
+                    "command_id",
+                    "response",
+                    "payload"
+                  ],
+                  "properties": {
+                    "command": {
+                      "type": "string",
+                      "description": "Echoed command name",
+                      "enum": [
+                        "start"
+                      ]
+                    },
+                    "command_id": {
+                      "type": "string",
+                      "description": "Echoed command ID from the request"
+                    },
+                    "response": {
+                      "type": "string",
+                      "enum": [
+                        "success",
+                        "failure"
+                      ],
+                      "description": "Command result status"
+                    },
+                    "payload": {
+                      "type": "object",
+                      "description": "Empty object on success, or error details on failure."
+                    }
+                  }
+                },
+                "examples": {
+                  "example1": {
+                    "value": {
+                      "command": "start",
+                      "command_id": "a1b2c3d4-0001-4000-8001-aabbccddeeff",
+                      "response": "success",
+                      "payload": {}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          {
+            "code": 0,
+            "description": "Success",
+            "iot_status_code": "SUCCESS",
+            "cause": "",
+            "recommended_action": ""
+          },
+          {
+            "code": 1,
+            "description": "General failure",
+            "iot_status_code": "GENERAL_FAILURE",
+            "cause": "Internal error or invalid payload",
+            "recommended_action": "Check the payload format and retry"
+          },
+          {
+            "code": 2,
+            "description": "BLE not configured",
+            "iot_status_code": "BLE_NOT_CONFIGURED",
+            "cause": "BLE scanning was requested but ble.enable has not been set to true via set_bleConfig",
+            "recommended_action": "Send set_bleConfig with ble.enable set to true before starting BLE scanning"
+          },
+          {
+            "code": 4,
+            "description": "Scanner busy",
+            "iot_status_code": "SCANNER_BUSY",
+            "cause": "BLE scanning is already active",
+            "recommended_action": "Stop the current scan first, then retry"
+          }
+        ]
+      }
+    },
+    "/stop": {
+      "post": {
+        "tags": [
+          "Control Commands"
+        ],
+        "summary": "Stop BLE Scanning",
+        "description": "**Description:**\nStops BLE scanning on the reader.\n\n**Usage:**\nSend this command with `scanType` set to `[\"ble\"]` to stop BLE scanning. Always wait for the success response before you change BLE configuration or start scanning again.\n\n**Parameters (MQTT & REST):**\n\n- **scanType** (array): Scan modes to stop. Use `[\"ble\"]` to stop BLE scanning.\n\n<div class=\"endpoint-block\"><div class=\"ep-heading ep-mqtt\">MQTT Endpoint Details</div><table class=\"endpoint-table\"><tbody><tr><td>Command</td><td><code>stop</code></td></tr></tbody></table></div>\n\n<div class=\"endpoint-block\"><div class=\"ep-heading ep-rest\">REST Endpoint Details</div><table class=\"endpoint-table\"><tbody><tr><td>Method</td><td><span class=\"ep-method ep-method-put\">PUT</span></td></tr><tr><td>Path</td><td><code>/cloud/stop</code></td></tr><tr><td>Request URL</td><td><code>https://&lt;device-ip&gt;/cloud/stop</code></td></tr><tr><td>Content-Type</td><td><code>application/json</code></td></tr></tbody></table></div>",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "command",
+                  "command_id",
+                  "payload"
+                ],
+                "properties": {
+                  "command": {
+                    "type": "string",
+                    "description": "MQTT command name",
+                    "enum": [
+                      "stop"
+                    ]
+                  },
+                  "command_id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "Unique identifier to correlate this request with its response"
+                  },
+                  "payload": {
+                    "type": "object",
+                    "properties": {
+                      "scanType": {
+                        "type": "array",
+                        "description": "Scan modes to stop. Use [\"ble\"] to stop BLE scanning.",
+                        "items": {
+                          "type": "string",
+                          "enum": [
+                            "ble"
+                          ]
+                        },
+                        "example": [
+                          "ble"
+                        ]
+                      }
+                    }
+                  }
+                }
+              },
+              "examples": {
+                "Stop BLE only": {
+                  "description": "Stops BLE scanning only.",
+                  "value": {
+                    "command": "stop",
+                    "command_id": "b2c3d4e5-0001-4000-8001-bbccddeeff00",
+                    "payload": {
+                      "scanType": [
+                        "ble"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "description": "stop response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "command",
+                    "command_id",
+                    "response",
+                    "payload"
+                  ],
+                  "properties": {
+                    "command": {
+                      "type": "string",
+                      "description": "Echoed command name",
+                      "enum": [
+                        "stop"
+                      ]
+                    },
+                    "command_id": {
+                      "type": "string",
+                      "description": "Echoed command ID from the request"
+                    },
+                    "response": {
+                      "type": "string",
+                      "enum": [
+                        "success",
+                        "failure"
+                      ],
+                      "description": "Command result status"
+                    },
+                    "payload": {
+                      "type": "object",
+                      "description": "Empty object on success, or error details on failure."
+                    }
+                  }
+                },
+                "examples": {
+                  "example1": {
+                    "value": {
+                      "command": "stop",
+                      "command_id": "b2c3d4e5-0001-4000-8001-bbccddeeff00",
+                      "response": "success",
+                      "payload": {}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          {
+            "code": 0,
+            "description": "Success",
+            "iot_status_code": "SUCCESS",
+            "cause": "",
+            "recommended_action": ""
+          },
+          {
+            "code": 1,
+            "description": "General failure",
+            "iot_status_code": "GENERAL_FAILURE",
+            "cause": "Internal error or invalid payload",
+            "recommended_action": "Check the payload format and retry"
+          }
+        ]
+      }
+    }
+  }
+}

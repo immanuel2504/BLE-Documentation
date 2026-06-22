@@ -1,0 +1,1 @@
+Use these commands to configure the Bluetooth Low Energy scanner on the FXR90 reader. Set the scan interval, apply RSSI and service UUID filters, and enable protocol-specific detection for iBeacon, AltBeacon, Eddystone, and generic BLE devices. Configuration must be saved before starting a BLE scan.

@@ -1,0 +1,50 @@
+{
+  "title": "start",
+  "x-summary": "Start BLE Scanning",
+  "description": "Starts BLE scanning on the reader. Use scanType to select which scan modes to activate. BLE must be configured via set_bleConfig with ble.enable set to true before issuing this command.",
+  "x-tag": "Control Commands",
+  "type": "object",
+  "required": ["command", "command_id", "payload"],
+  "properties": {
+    "command": {
+      "type": "string",
+      "const": "start",
+      "description": "MQTT command name"
+    },
+    "command_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier to correlate this request with its response"
+    },
+    "payload": {
+      "type": "object",
+      "properties": {
+        "scanType": {
+          "type": "array",
+          "description": "Scan modes to activate. Use [\"ble\"] for BLE only, or [\"ble\", \"rfid\"] for combined BLE and RFID scanning.",
+          "items": {
+            "type": "string",
+            "enum": ["ble", "rfid"]
+          },
+          "example": ["ble"]
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "command": "start",
+      "command_id": "a1b2c3d4-0001-4000-8001-aabbccddeeff",
+      "payload": {
+        "scanType": ["ble"]
+      }
+    },
+    {
+      "command": "start",
+      "command_id": "a1b2c3d4-0002-4000-8002-aabbccddeeff",
+      "payload": {
+        "scanType": ["ble", "rfid"]
+      }
+    }
+  ]
+}

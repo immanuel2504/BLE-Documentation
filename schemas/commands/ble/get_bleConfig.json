@@ -1,0 +1,32 @@
+{
+  "title": "get_bleConfig",
+  "x-summary": "Get BLE Configuration",
+  "description": "Retrieves the current Bluetooth Low Energy scanner configuration from the reader. Returns enabled state, scan interval, RSSI filter, service UUID filters, and all protocol-specific filter settings.",
+  "x-tag": "BLE Configuration",
+  "type": "object",
+  "required": ["command", "command_id", "payload"],
+  "properties": {
+    "command": {
+      "type": "string",
+      "const": "get_bleConfig",
+      "description": "MQTT command name"
+    },
+    "command_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier to correlate this request with its response"
+    },
+    "payload": {
+      "type": "object",
+      "description": "Empty payload — no additional parameters required.",
+      "additionalProperties": false
+    }
+  },
+  "examples": [
+    {
+      "command": "get_bleConfig",
+      "command_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "payload": {}
+    }
+  ]
+}
