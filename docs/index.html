@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <title>BLE API Reference</title>
 <link href="https://fonts.googleapis.com/css?family=Inter:400,600,700,900&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="css/custom-api.css?v=20260622-5" />
+<link rel="stylesheet" href="css/custom-api.css?v=20260622-6" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
@@ -1423,88 +1423,54 @@ function render(spec) {
     });
   });
 
-  /* Active nav highlight on scroll */
+  /* Active nav highlight on scroll — unified scroll-spy.
+     All anchored regions (Getting-started headings, tag sections, and
+     operations) are collected in document order. On scroll we pick the last
+     region whose top has passed below the topbar, then highlight its nav
+     link(s): operations also light up their parent tag. */
   var TOPBAR_H = document.getElementById('topbar') ? document.getElementById('topbar').offsetHeight : 52;
   var navOpLinks = Array.prototype.slice.call(document.querySelectorAll('.nav-op'));
   var navTagLinks = Array.prototype.slice.call(document.querySelectorAll('.nav-tag'));
-  var opSections = Array.prototype.slice.call(document.querySelectorAll('.operation'));
-  var tagSections = Array.prototype.slice.call(document.querySelectorAll('.tag-section'));
-  var infoHeadings = Array.prototype.slice.call(document.querySelectorAll('.info-description h2, .info-description h3'));
+  /* DOM order: info headings, then each tag-section followed by its operations */
+  var spyEls = Array.prototype.slice.call(
+    document.querySelectorAll('.info-description h2, .info-description h3, .tag-section, .operation')
+  );
   var lastActive = null;
+
+  function hrefsForActive(el) {
+    if (!el) return { tagHref: null, opHref: null };
+    if (el.classList.contains('operation')) {
+      var p = el.parentElement;
+      while (p && !p.classList.contains('tag-section')) p = p.parentElement;
+      return { tagHref: p ? '#'+p.id : null, opHref: '#'+el.id };
+    }
+    /* info heading or tag-section */
+    return { tagHref: '#'+el.id, opHref: null };
+  }
 
   function updateActiveNav() {
     var threshold = TOPBAR_H + 12;
-    var bestOp = null, bestDist = Infinity;
-    var activeInfoId = null;
+    var active = null;
+    for (var i=0; i<spyEls.length; i++) {
+      if (spyEls[i].getBoundingClientRect().top <= threshold) active = spyEls[i];
+      else break; /* tops are monotonic in document order */
+    }
+    if (!active && spyEls.length) active = spyEls[0]; /* top of page → first section */
 
-    /* Check info sections first (Overview, Supported beacon protocols, etc.) */
-    var bestInfoTop = -Infinity;
-    infoHeadings.forEach(function(heading){
-      var rect = heading.getBoundingClientRect();
-      if (rect.top<=threshold && rect.top>bestInfoTop) {
-        bestInfoTop=rect.top;
-        activeInfoId = heading.id;
-      }
-    });
-
-    /* If in info section, use that; otherwise check operations and tags */
-    if (activeInfoId) {
-      navTagLinks.forEach(function(link){
-        link.classList.toggle('active', link.getAttribute('href')==='#'+activeInfoId);
-      });
-      navOpLinks.forEach(function(link){
-        link.classList.remove('active');
-      });
-      return;
-    }
-
-    opSections.forEach(function(op){
-      var rect = op.getBoundingClientRect();
-      var visible = rect.bottom>threshold && rect.top<window.innerHeight;
-      if (!visible) return;
-      var d = Math.abs(rect.top-threshold);
-      if (d<bestDist) { bestDist=d; bestOp=op; }
-    });
-    if (!bestOp) {
-      opSections.forEach(function(op){
-        var rect = op.getBoundingClientRect();
-        if (rect.top>threshold && rect.top<(bestDist||Infinity)) { bestDist=rect.top; bestOp=op; }
-      });
-    }
-    if (!bestOp) {
-      var nearest = -Infinity;
-      opSections.forEach(function(op){
-        var rect = op.getBoundingClientRect();
-        if (rect.top<=threshold && rect.top>nearest) { nearest=rect.top; bestOp=op; }
-      });
-    }
-    var activeOpId = bestOp ? bestOp.id : null;
-    var activeTagId = null;
-    if (bestOp) {
-      var el = bestOp.parentElement;
-      while (el && !el.classList.contains('tag-section')) el = el.parentElement;
-      if (el) activeTagId = el.id;
-    }
-    if (!activeTagId) {
-      var bestTagTop = -Infinity;
-      tagSections.forEach(function(tag){
-        var rect = tag.getBoundingClientRect();
-        if (rect.top<=threshold && rect.top>bestTagTop) { bestTagTop=rect.top; activeTagId=tag.id; }
-      });
-    }
-    navOpLinks.forEach(function(link){
-      link.classList.toggle('active',!!activeOpId && link.getAttribute('href')==='#'+activeOpId);
-    });
+    var h = hrefsForActive(active);
     navTagLinks.forEach(function(link){
-      link.classList.toggle('active',!!activeTagId && link.getAttribute('href')==='#'+activeTagId);
+      link.classList.toggle('active', !!h.tagHref && link.getAttribute('href')===h.tagHref);
     });
+    navOpLinks.forEach(function(link){
+      link.classList.toggle('active', !!h.opHref && link.getAttribute('href')===h.opHref);
+    });
+
     /* Group active highlight + breadcrumb */
     document.querySelectorAll('.nav-group').forEach(function(g){ g.classList.remove('active-group'); });
     var activeOp = nav.querySelector('.nav-op.active');
     if (activeOp) {
       var ch = activeOp.parentElement;
       while (ch && !ch.classList.contains('nav-group-children')) ch = ch.parentElement;
-      /* Breadcrumb */
       var bc = document.getElementById('sidebar-breadcrumb');
       if (bc) {
         var parentTag = activeOp.previousElementSibling;
