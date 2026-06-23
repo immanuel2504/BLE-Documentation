@@ -68,8 +68,7 @@
                                     },
                                     "command_id": {
                                         "type": "string",
-                                        "format": "uuid",
-                                        "description": "Unique identifier to correlate this request with its response"
+                                        "description": "Unique identifier to correlate this request with its response. Any string the client chooses; echoed back in the response."
                                     },
                                     "payload": {
                                         "type": "object",
@@ -431,8 +430,7 @@
                                     },
                                     "command_id": {
                                         "type": "string",
-                                        "format": "uuid",
-                                        "description": "Unique identifier to correlate this request with its response"
+                                        "description": "Unique identifier to correlate this request with its response. Any string the client chooses; echoed back in the response."
                                     },
                                     "payload": {
                                         "type": "object",
@@ -938,8 +936,7 @@
                                     },
                                     "command_id": {
                                         "type": "string",
-                                        "format": "uuid",
-                                        "description": "Unique identifier to correlate this request with its response"
+                                        "description": "Unique identifier to correlate this request with its response. Any string the client chooses; echoed back in the response."
                                     },
                                     "payload": {
                                         "type": "object",
@@ -1105,8 +1102,7 @@
                                     },
                                     "command_id": {
                                         "type": "string",
-                                        "format": "uuid",
-                                        "description": "Unique identifier to correlate this request with its response"
+                                        "description": "Unique identifier to correlate this request with its response. Any string the client chooses; echoed back in the response."
                                     },
                                     "payload": {
                                         "type": "object",
@@ -1258,8 +1254,7 @@
                                     },
                                     "command_id": {
                                         "type": "string",
-                                        "format": "uuid",
-                                        "description": "Unique identifier to correlate this request with its response"
+                                        "description": "Unique identifier to correlate this request with its response. Any string the client chooses; echoed back in the response."
                                     },
                                     "payload": {
                                         "type": "object",
