@@ -8,12 +8,10 @@ The FXR90 reader supports passive BLE advertisement scanning alongside RFID inve
 
 Use REST when you integrate directly with the reader over HTTPS.
 
-1. **Configure BLE scanning.** Send `PUT /cloud/ble-config` to save how the reader should scan. Set `ble.enable` to `true` (required) to allow BLE scanning. Optionally, add in the same request:
+1. **Configure BLE scanning.** Send `PUT /cloud/ble-config` to save how the reader should scan. Set `ble.enable` to `true` (required) to allow BLE scanning. This request only saves the configuration — it does not start scanning (that happens in step 3). Optionally, add in the same request:
    - `scanIntervalSec` — how often the reader collects results.
    - `additionalFilters` — cross-protocol RSSI and service-UUID filters.
    - `protocols` — per-protocol filters (iBeacon, AltBeacon, Eddystone, generic).
-
-   This request only saves the configuration — it does not start scanning. Scanning begins in step 3.
 2. **Verify the configuration.** Send `GET /cloud/ble-config` and confirm that `ble.enable` is `true` and your filters were saved as expected.
 3. **Start BLE scanning.** Send `PUT /cloud/start` with `scanType: ["ble"]`.
 4. **Collect BLE events.** The reader publishes BLE advertisement events as it detects beacons.
@@ -24,12 +22,10 @@ Use REST when you integrate directly with the reader over HTTPS.
 
 Use MQTT when you send commands through the reader's command topic.
 
-1. **Configure BLE scanning.** Send `set_bleConfig` to save how the reader should scan. Set `payload.ble.enable` to `true` (required) to allow BLE scanning. Optionally, add in the same command:
+1. **Configure BLE scanning.** Send `set_bleConfig` to save how the reader should scan. Set `payload.ble.enable` to `true` (required) to allow BLE scanning. This command only saves the configuration — it does not start scanning (that happens in step 3). Optionally, add in the same command:
    - `scanIntervalSec` — how often the reader collects results.
    - `additionalFilters` — cross-protocol RSSI and service-UUID filters.
    - `protocols` — per-protocol filters (iBeacon, AltBeacon, Eddystone, generic).
-
-   This command only saves the configuration — it does not start scanning. Scanning begins in step 3.
 2. **Verify the configuration.** Send `get_bleConfig` and confirm that `payload.ble.enable` is `true` and your filters were saved as expected.
 3. **Start BLE scanning.** Send `start` with `scanType: ["ble"]`.
 4. **Collect BLE events.** The reader publishes BLE advertisement events as it detects beacons.
