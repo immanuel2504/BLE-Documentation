@@ -1,0 +1,20 @@
+{
+  "radioActivity": "inactive",
+  "radioConnection": "connected",
+  "temperature": 33,
+  "uptime": "0D1H13M15S",
+  "systemTime": "13/06/2024 11:19",
+  "cpu": { "system": 0, "user": 2 },
+  "ram": { "free": 76, "total": 100, "used": 24 },
+  "ble": {
+    "scanState": "running",
+    "scanStartTime": "2026-05-21T13:46:16.955Z",
+    "beaconCounts": {
+      "total": 108,
+      "iBeacon": 75,
+      "altBeacon": 33,
+      "eddystone": 0,
+      "generic": 0
+    }
+  }
+}

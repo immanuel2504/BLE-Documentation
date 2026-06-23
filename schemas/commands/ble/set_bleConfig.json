@@ -48,12 +48,14 @@
                 },
                 "serviceUuids16": {
                   "type": "array",
-                  "items": { "type": "string" },
+                  "description": "List of 16-bit service UUIDs to filter on.",
+                  "items": { "type": "string", "description": "A 16-bit service UUID (hex string)." },
                   "example": ["FEAA", "FE9B"]
                 },
                 "serviceUuids128": {
                   "type": "array",
-                  "items": { "type": "string" },
+                  "description": "List of 128-bit service UUIDs to filter on.",
+                  "items": { "type": "string", "description": "A 128-bit service UUID string." },
                   "example": ["FDA50693-A4E2-4FB1-AFCF-C6EB07647825"]
                 }
               }
@@ -64,16 +66,19 @@
               "properties": {
                 "iBeacon": {
                   "type": "object",
+                  "description": "iBeacon scanner configuration.",
                   "properties": {
-                    "enabled": { "type": "boolean", "example": true },
+                    "enabled": { "type": "boolean", "description": "Whether iBeacon filtering is enabled.", "example": true },
                     "filters": {
                       "type": "array",
+                      "description": "Filter by iBeacon fields. A beacon is forwarded if it matches any one filter entry.",
                       "items": {
                         "type": "object",
+                        "description": "A single iBeacon filter entry.",
                         "properties": {
                           "uuid": { "type": "string", "description": "Proximity UUID.", "example": "FDA50693-A4E2-4FB1-AFCF-C6EB07647825" },
-                          "major": { "type": "integer", "example": 10001 },
-                          "minor": { "type": "integer", "example": 20002 },
+                          "major": { "type": "integer", "description": "Major value.", "example": 10001 },
+                          "minor": { "type": "integer", "description": "Minor value.", "example": 20002 },
                           "txPower": { "type": "integer", "description": "Calibrated RSSI at 1 metre.", "example": -59 }
                         }
                       }
@@ -82,18 +87,21 @@
                 },
                 "altBeacon": {
                   "type": "object",
+                  "description": "AltBeacon scanner configuration.",
                   "properties": {
-                    "enabled": { "type": "boolean", "example": true },
+                    "enabled": { "type": "boolean", "description": "Whether AltBeacon filtering is enabled.", "example": true },
                     "filters": {
                       "type": "array",
+                      "description": "Filter by AltBeacon fields. A beacon is forwarded if it matches any one filter entry.",
                       "items": {
                         "type": "object",
+                        "description": "A single AltBeacon filter entry.",
                         "properties": {
                           "mfgId": { "type": "string", "description": "Manufacturer ID (hex string).", "example": "0118" },
                           "beaconId": { "type": "string", "description": "Beacon ID (UUID string).", "example": "2F234454-CF6D-4A0F-ADF2-F4911BA9FFA7" },
-                          "major": { "type": "integer", "example": 4 },
-                          "minor": { "type": "integer", "example": 4 },
-                          "refRssi": { "type": "integer", "description": "Reference RSSI at 1 metre.", "example": -100 }
+                          "major": { "type": "integer", "description": "Major value.", "example": 4 },
+                          "minor": { "type": "integer", "description": "Minor value.", "example": 4 },
+                          "refRssi": { "type": "integer", "description": "Reference RSSI (TX power at 1 metre).", "example": -100 }
                         }
                       }
                     }
@@ -101,20 +109,22 @@
                 },
                 "eddystone": {
                   "type": "object",
+                  "description": "Eddystone scanner configuration.",
                   "properties": {
-                    "enabled": { "type": "boolean", "example": true },
+                    "enabled": { "type": "boolean", "description": "Whether Eddystone filtering is enabled.", "example": true },
                     "filters": {
                       "type": "array",
-                      "description": "Filter by Eddystone frame fields. Use frameType to target a specific frame type.",
+                      "description": "Filter by Eddystone frame fields. Use frameType to target a specific frame type. All other fields are optional and frame-type-specific.",
                       "items": {
                         "type": "object",
+                        "description": "A single Eddystone filter entry.",
                         "properties": {
-                          "frameType": { "type": "string", "enum": ["URL", "UID", "EID", "TLM"], "example": "URL" },
-                          "txPower": { "type": "integer", "example": -59 },
-                          "url": { "type": "string", "description": "Advertised URL (Eddystone-URL only).", "example": "https://www.zebra.com" },
-                          "namespace": { "type": "string", "description": "10-byte namespace hex string (Eddystone-UID only).", "example": "0102030405060708090A" },
-                          "instance": { "type": "string", "description": "6-byte instance ID hex string (Eddystone-UID only).", "example": "000000000001" },
-                          "ephemeralId": { "type": "string", "description": "8-byte ephemeral ID hex string (Eddystone-EID only).", "example": "0102030405060708" }
+                          "frameType": { "type": "string", "enum": ["URL", "UID", "EID", "TLM"], "description": "Eddystone frame type.", "example": "URL" },
+                          "txPower": { "type": "integer", "description": "TX power at 0 m (calibrated RSSI).", "example": -59 },
+                          "url": { "type": "string", "description": "Advertised URL (Eddystone-URL frames only).", "example": "https://www.zebra.com" },
+                          "namespace": { "type": "string", "description": "10-byte namespace hex string (Eddystone-UID frames only).", "example": "0102030405060708090A" },
+                          "instance": { "type": "string", "description": "6-byte instance ID hex string (Eddystone-UID frames only).", "example": "000000000001" },
+                          "ephemeralId": { "type": "string", "description": "8-byte ephemeral ID hex string (Eddystone-EID frames only).", "example": "0102030405060708" }
                         }
                       }
                     }
@@ -122,19 +132,20 @@
                 },
                 "generic": {
                   "type": "object",
-                  "description": "Configuration for generic BLE devices.",
+                  "description": "Configuration for generic BLE devices. Filters match on device-level advertisement fields.",
                   "properties": {
-                    "enabled": { "type": "boolean", "example": true },
+                    "enabled": { "type": "boolean", "description": "Whether generic BLE device filtering is enabled.", "example": true },
                     "filters": {
                       "type": "array",
-                      "description": "A device is forwarded if it matches any one filter entry.",
+                      "description": "List of filter objects for generic BLE devices. A device is forwarded if it matches any one filter entry.",
                       "items": {
                         "type": "object",
+                        "description": "A single generic BLE device filter entry.",
                         "properties": {
-                          "address": { "type": "string", "description": "Bluetooth MAC address.", "example": "7E:41:25:1E:D5:16" },
-                          "addressType": { "type": "string", "enum": ["public", "random"], "example": "random" },
-                          "name": { "type": "string", "example": "BLEPeripheralApp" },
-                          "alias": { "type": "string", "example": "BLEPeripheralApp" }
+                          "address": { "type": "string", "description": "Bluetooth device MAC address to match.", "example": "7E:41:25:1E:D5:16" },
+                          "addressType": { "type": "string", "enum": ["public", "random"], "description": "Bluetooth address type to match.", "example": "random" },
+                          "name": { "type": "string", "description": "Device name to match against the Name field in the BLE advertisement.", "example": "BLEPeripheralApp" },
+                          "alias": { "type": "string", "description": "Device alias to match against the Alias field in the BLE advertisement.", "example": "BLEPeripheralApp" }
                         }
                       }
                     }

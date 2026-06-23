@@ -1,0 +1,32 @@
+{
+  "title": "get_status",
+  "x-summary": "Get Reader Status",
+  "description": "Retrieves operational status and runtime statistics from the reader, including BLE scanner state and beacon counts. The response includes a `ble` section when BLE is supported and its status is available.",
+  "x-tag": "BLE Status",
+  "type": "object",
+  "required": ["command", "command_id", "payload"],
+  "properties": {
+    "command": {
+      "type": "string",
+      "const": "get_status",
+      "description": "MQTT command name"
+    },
+    "command_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier to correlate this request with its response"
+    },
+    "payload": {
+      "type": "object",
+      "description": "Empty payload — no additional parameters required.",
+      "additionalProperties": false
+    }
+  },
+  "examples": [
+    {
+      "command": "get_status",
+      "command_id": "f1e2d3c4-b5a6-7890-1234-567890abcdef",
+      "payload": {}
+    }
+  ]
+}

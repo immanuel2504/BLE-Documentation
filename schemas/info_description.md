@@ -12,7 +12,8 @@ Use REST when you integrate directly with the reader over HTTPS.
 2. **Verify the configuration.** Send `GET /cloud/ble-config` and confirm that `ble.enable` is `true` and your filters were saved as expected.
 3. **Start BLE scanning.** Send `PUT /cloud/start` with `scanType: ["ble"]`.
 4. **Collect BLE events.** The reader publishes BLE advertisement events as it detects beacons.
-5. **Stop BLE scanning.** Send `PUT /cloud/stop` with `scanType: ["ble"]`.
+5. **Check BLE status.** Send `GET /cloud/status` at any time and review the `ble` section to confirm scanning is active (`ble.scanState` is `running`) and see advertisement counts by protocol (`ble.beaconCounts`).
+6. **Stop BLE scanning.** Send `PUT /cloud/stop` with `scanType: ["ble"]`.
 
 ## MQTT workflow
 
@@ -22,7 +23,8 @@ Use MQTT when you send commands through the reader's command topic.
 2. **Verify the configuration.** Send `get_bleConfig` and confirm that `payload.ble.enable` is `true` and your filters were saved as expected.
 3. **Start BLE scanning.** Send `start` with `scanType: ["ble"]`.
 4. **Collect BLE events.** The reader publishes BLE advertisement events as it detects beacons.
-5. **Stop BLE scanning.** Send `stop` with `scanType: ["ble"]`.
+5. **Check BLE status.** Send `get_status` at any time and review the `payload.ble` section to confirm scanning is active (`ble.scanState` is `running`) and see advertisement counts by protocol (`ble.beaconCounts`).
+6. **Stop BLE scanning.** Send `stop` with `scanType: ["ble"]`.
 
 ## Authentication
 

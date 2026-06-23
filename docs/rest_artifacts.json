@@ -47,32 +47,41 @@
       "properties": {
         "ble": {
           "type": "object",
+          "description": "The current BLE scanner configuration stored on the reader.",
           "properties": {
             "enable": {
               "type": "boolean",
+              "description": "Whether BLE scanning is currently enabled.",
               "example": true
             },
             "scanIntervalSec": {
               "type": "integer",
+              "description": "How frequently the reader collects BLE scan results, in seconds.",
               "example": 5
             },
             "additionalFilters": {
               "type": "object",
+              "description": "Cross-protocol filters applied to all BLE advertisements.",
               "properties": {
                 "rssi": {
                   "type": "integer",
+                  "description": "Minimum RSSI threshold in dBm. Advertisements below this value are dropped. Range: -127 to 0.",
                   "example": -80
                 },
                 "serviceUuids16": {
                   "type": "array",
+                  "description": "List of 16-bit service UUIDs being filtered on.",
                   "items": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "A 16-bit service UUID (hex string)."
                   }
                 },
                 "serviceUuids128": {
                   "type": "array",
+                  "description": "List of 128-bit service UUIDs being filtered on.",
                   "items": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "A 128-bit service UUID string."
                   }
                 }
               }
@@ -83,24 +92,30 @@
               "properties": {
                 "iBeacon": {
                   "type": "object",
+                  "description": "iBeacon scanner configuration.",
                   "properties": {
                     "enabled": {
-                      "type": "boolean"
+                      "type": "boolean",
+                      "description": "Whether iBeacon filtering is enabled."
                     },
                     "filters": {
                       "type": "array",
+                      "description": "Configured iBeacon filters. A beacon is forwarded if it matches any one filter entry.",
                       "items": {
                         "type": "object",
+                        "description": "A single iBeacon filter entry.",
                         "properties": {
                           "uuid": {
                             "type": "string",
                             "description": "Proximity UUID."
                           },
                           "major": {
-                            "type": "integer"
+                            "type": "integer",
+                            "description": "Major value."
                           },
                           "minor": {
-                            "type": "integer"
+                            "type": "integer",
+                            "description": "Minor value."
                           },
                           "txPower": {
                             "type": "integer",
@@ -113,14 +128,18 @@
                 },
                 "altBeacon": {
                   "type": "object",
+                  "description": "AltBeacon scanner configuration.",
                   "properties": {
                     "enabled": {
-                      "type": "boolean"
+                      "type": "boolean",
+                      "description": "Whether AltBeacon filtering is enabled."
                     },
                     "filters": {
                       "type": "array",
+                      "description": "Configured AltBeacon filters. A beacon is forwarded if it matches any one filter entry.",
                       "items": {
                         "type": "object",
+                        "description": "A single AltBeacon filter entry.",
                         "properties": {
                           "mfgId": {
                             "type": "string",
@@ -131,14 +150,16 @@
                             "description": "Beacon ID (UUID string)."
                           },
                           "major": {
-                            "type": "integer"
+                            "type": "integer",
+                            "description": "Major value."
                           },
                           "minor": {
-                            "type": "integer"
+                            "type": "integer",
+                            "description": "Minor value."
                           },
                           "refRssi": {
                             "type": "integer",
-                            "description": "Reference RSSI at 1 metre."
+                            "description": "Reference RSSI (TX power at 1 metre)."
                           }
                         }
                       }
@@ -147,15 +168,18 @@
                 },
                 "eddystone": {
                   "type": "object",
+                  "description": "Eddystone scanner configuration.",
                   "properties": {
                     "enabled": {
-                      "type": "boolean"
+                      "type": "boolean",
+                      "description": "Whether Eddystone filtering is enabled."
                     },
                     "filters": {
                       "type": "array",
-                      "description": "Filter by Eddystone frame fields.",
+                      "description": "Configured Eddystone filters. Each entry targets a specific frame type via frameType.",
                       "items": {
                         "type": "object",
+                        "description": "A single Eddystone filter entry.",
                         "properties": {
                           "frameType": {
                             "type": "string",
@@ -164,26 +188,28 @@
                               "UID",
                               "EID",
                               "TLM"
-                            ]
+                            ],
+                            "description": "Eddystone frame type."
                           },
                           "txPower": {
-                            "type": "integer"
+                            "type": "integer",
+                            "description": "TX power at 0 m (calibrated RSSI)."
                           },
                           "url": {
                             "type": "string",
-                            "description": "Advertised URL (Eddystone-URL only)."
+                            "description": "Advertised URL (Eddystone-URL frames only)."
                           },
                           "namespace": {
                             "type": "string",
-                            "description": "10-byte namespace hex string (Eddystone-UID only)."
+                            "description": "10-byte namespace hex string (Eddystone-UID frames only)."
                           },
                           "instance": {
                             "type": "string",
-                            "description": "6-byte instance ID hex string (Eddystone-UID only)."
+                            "description": "6-byte instance ID hex string (Eddystone-UID frames only)."
                           },
                           "ephemeralId": {
                             "type": "string",
-                            "description": "8-byte ephemeral ID hex string (Eddystone-EID only)."
+                            "description": "8-byte ephemeral ID hex string (Eddystone-EID frames only)."
                           }
                         }
                       }
@@ -192,33 +218,38 @@
                 },
                 "generic": {
                   "type": "object",
-                  "description": "Configuration for generic BLE devices.",
+                  "description": "Configuration for generic BLE devices. Filters match on device-level advertisement fields.",
                   "properties": {
                     "enabled": {
-                      "type": "boolean"
+                      "type": "boolean",
+                      "description": "Whether generic BLE device filtering is enabled."
                     },
                     "filters": {
                       "type": "array",
-                      "description": "List of filter objects for generic BLE devices.",
+                      "description": "Configured generic BLE device filters. A device is forwarded if it matches any one filter entry.",
                       "items": {
                         "type": "object",
+                        "description": "A single generic BLE device filter entry.",
                         "properties": {
                           "address": {
                             "type": "string",
-                            "description": "Bluetooth device MAC address."
+                            "description": "Bluetooth device MAC address to match."
                           },
                           "addressType": {
                             "type": "string",
                             "enum": [
                               "public",
                               "random"
-                            ]
+                            ],
+                            "description": "Bluetooth address type to match."
                           },
                           "name": {
-                            "type": "string"
+                            "type": "string",
+                            "description": "Device name to match against the Name field in the BLE advertisement."
                           },
                           "alias": {
-                            "type": "string"
+                            "type": "string",
+                            "description": "Device alias to match against the Alias field in the BLE advertisement."
                           }
                         }
                       }
@@ -257,6 +288,195 @@
               "serviceUuids128": [
                 "FDA50693-A4E2-4FB1-AFCF-C6EB07647825"
               ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  "getStatus": {
+    "request_example": null,
+    "request_schema": {
+      "title": "Get Reader Status Request",
+      "description": "No request body required. Use GET /cloud/status.",
+      "type": "object",
+      "properties": {},
+      "additionalProperties": false
+    },
+    "response_example": {
+      "radioActivity": "inactive",
+      "radioConnection": "connected",
+      "temperature": 33,
+      "uptime": "0D1H13M15S",
+      "systemTime": "13/06/2024 11:19",
+      "cpu": {
+        "system": 0,
+        "user": 2
+      },
+      "ram": {
+        "free": 76,
+        "total": 100,
+        "used": 24
+      },
+      "ble": {
+        "scanState": "running",
+        "scanStartTime": "2026-05-21T13:46:16.955Z",
+        "beaconCounts": {
+          "total": 108,
+          "iBeacon": 75,
+          "altBeacon": 33,
+          "eddystone": 0,
+          "generic": 0
+        }
+      }
+    },
+    "response_schema": {
+      "title": "Get Reader Status Response",
+      "description": "Returns the reader's operational status and runtime statistics. When BLE is supported and active, the response includes a `ble` section with the scanner state and beacon counts.",
+      "type": "object",
+      "properties": {
+        "ble": {
+          "type": "object",
+          "description": "BLE scanner runtime status. Present only when BLE is supported and status is available.",
+          "properties": {
+            "scanState": {
+              "type": "string",
+              "enum": [
+                "running",
+                "stopped"
+              ],
+              "description": "Current BLE scanner state.",
+              "example": "running"
+            },
+            "scanStartTime": {
+              "type": "string",
+              "format": "date-time",
+              "description": "ISO 8601 timestamp when the BLE scan was last started.",
+              "example": "2026-05-21T13:46:16.955Z"
+            },
+            "beaconCounts": {
+              "type": "object",
+              "description": "BLE advertisement counts by beacon format for the current scan window.",
+              "properties": {
+                "total": {
+                  "type": "integer",
+                  "description": "Total BLE advertisements observed.",
+                  "example": 108
+                },
+                "iBeacon": {
+                  "type": "integer",
+                  "description": "Number of iBeacon advertisements observed.",
+                  "example": 75
+                },
+                "altBeacon": {
+                  "type": "integer",
+                  "description": "Number of AltBeacon advertisements observed.",
+                  "example": 33
+                },
+                "eddystone": {
+                  "type": "integer",
+                  "description": "Number of Eddystone advertisements observed.",
+                  "example": 0
+                },
+                "generic": {
+                  "type": "integer",
+                  "description": "Number of generic BLE advertisements observed.",
+                  "example": 0
+                }
+              }
+            }
+          }
+        },
+        "radioActivity": {
+          "type": "string",
+          "enum": [
+            "active",
+            "inactive"
+          ],
+          "description": "Current RFID radio activity state.",
+          "example": "inactive"
+        },
+        "radioConnection": {
+          "type": "string",
+          "enum": [
+            "connected",
+            "disconnected"
+          ],
+          "description": "Current connection state of the RFID radio.",
+          "example": "connected"
+        },
+        "antennas": {
+          "type": "object",
+          "description": "Antenna connection status keyed by antenna port (connected or disconnected)."
+        },
+        "cpu": {
+          "type": "object",
+          "description": "Current CPU utilization percentages.",
+          "properties": {
+            "system": {
+              "type": "number"
+            },
+            "user": {
+              "type": "number"
+            }
+          }
+        },
+        "ram": {
+          "type": "object",
+          "description": "RAM usage statistics.",
+          "properties": {
+            "free": {
+              "type": "number"
+            },
+            "total": {
+              "type": "number"
+            },
+            "used": {
+              "type": "number"
+            }
+          }
+        },
+        "temperature": {
+          "type": "number",
+          "description": "Current reader internal temperature in degrees Celsius.",
+          "example": 33
+        },
+        "uptime": {
+          "type": "string",
+          "description": "Elapsed time since the reader last started.",
+          "example": "0D1H13M15S"
+        },
+        "systemTime": {
+          "type": "string",
+          "description": "Current reader system time.",
+          "example": "13/06/2024 11:19"
+        }
+      },
+      "examples": [
+        {
+          "radioActivity": "inactive",
+          "radioConnection": "connected",
+          "temperature": 33,
+          "uptime": "0D1H13M15S",
+          "systemTime": "13/06/2024 11:19",
+          "cpu": {
+            "system": 0,
+            "user": 2
+          },
+          "ram": {
+            "free": 76,
+            "total": 100,
+            "used": 24
+          },
+          "ble": {
+            "scanState": "running",
+            "scanStartTime": "2026-05-21T13:46:16.955Z",
+            "beaconCounts": {
+              "total": 108,
+              "iBeacon": 75,
+              "altBeacon": 33,
+              "eddystone": 0,
+              "generic": 0
             }
           }
         }

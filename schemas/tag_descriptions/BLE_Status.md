@@ -1,0 +1,1 @@
+Read the reader's operational status. The `ble` section of the response reports the BLE scanner state (`scanState`), when the current scan started (`scanStartTime`), and advertisement counts per protocol (`beaconCounts`). The status also includes general reader health such as uptime, temperature, CPU, RAM, antenna, and radio state.

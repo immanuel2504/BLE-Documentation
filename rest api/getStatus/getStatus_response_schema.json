@@ -1,0 +1,106 @@
+{
+  "title": "Get Reader Status Response",
+  "description": "Returns the reader's operational status and runtime statistics. When BLE is supported and active, the response includes a `ble` section with the scanner state and beacon counts.",
+  "type": "object",
+  "properties": {
+    "ble": {
+      "type": "object",
+      "description": "BLE scanner runtime status. Present only when BLE is supported and status is available.",
+      "properties": {
+        "scanState": {
+          "type": "string",
+          "enum": ["running", "stopped"],
+          "description": "Current BLE scanner state.",
+          "example": "running"
+        },
+        "scanStartTime": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 timestamp when the BLE scan was last started.",
+          "example": "2026-05-21T13:46:16.955Z"
+        },
+        "beaconCounts": {
+          "type": "object",
+          "description": "BLE advertisement counts by beacon format for the current scan window.",
+          "properties": {
+            "total": { "type": "integer", "description": "Total BLE advertisements observed.", "example": 108 },
+            "iBeacon": { "type": "integer", "description": "Number of iBeacon advertisements observed.", "example": 75 },
+            "altBeacon": { "type": "integer", "description": "Number of AltBeacon advertisements observed.", "example": 33 },
+            "eddystone": { "type": "integer", "description": "Number of Eddystone advertisements observed.", "example": 0 },
+            "generic": { "type": "integer", "description": "Number of generic BLE advertisements observed.", "example": 0 }
+          }
+        }
+      }
+    },
+    "radioActivity": {
+      "type": "string",
+      "enum": ["active", "inactive"],
+      "description": "Current RFID radio activity state.",
+      "example": "inactive"
+    },
+    "radioConnection": {
+      "type": "string",
+      "enum": ["connected", "disconnected"],
+      "description": "Current connection state of the RFID radio.",
+      "example": "connected"
+    },
+    "antennas": {
+      "type": "object",
+      "description": "Antenna connection status keyed by antenna port (connected or disconnected)."
+    },
+    "cpu": {
+      "type": "object",
+      "description": "Current CPU utilization percentages.",
+      "properties": {
+        "system": { "type": "number" },
+        "user": { "type": "number" }
+      }
+    },
+    "ram": {
+      "type": "object",
+      "description": "RAM usage statistics.",
+      "properties": {
+        "free": { "type": "number" },
+        "total": { "type": "number" },
+        "used": { "type": "number" }
+      }
+    },
+    "temperature": {
+      "type": "number",
+      "description": "Current reader internal temperature in degrees Celsius.",
+      "example": 33
+    },
+    "uptime": {
+      "type": "string",
+      "description": "Elapsed time since the reader last started.",
+      "example": "0D1H13M15S"
+    },
+    "systemTime": {
+      "type": "string",
+      "description": "Current reader system time.",
+      "example": "13/06/2024 11:19"
+    }
+  },
+  "examples": [
+    {
+      "radioActivity": "inactive",
+      "radioConnection": "connected",
+      "temperature": 33,
+      "uptime": "0D1H13M15S",
+      "systemTime": "13/06/2024 11:19",
+      "cpu": { "system": 0, "user": 2 },
+      "ram": { "free": 76, "total": 100, "used": 24 },
+      "ble": {
+        "scanState": "running",
+        "scanStartTime": "2026-05-21T13:46:16.955Z",
+        "beaconCounts": {
+          "total": 108,
+          "iBeacon": 75,
+          "altBeacon": 33,
+          "eddystone": 0,
+          "generic": 0
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,125 @@
+{
+  "title": "get_status Response",
+  "description": "Returns the reader's operational status and runtime statistics. When BLE is supported and active, the payload includes a `ble` section with the scanner state and beacon counts.",
+  "type": "object",
+  "required": ["command", "command_id", "response", "payload"],
+  "properties": {
+    "command": {
+      "type": "string",
+      "const": "get_status",
+      "description": "Echoed command name"
+    },
+    "command_id": {
+      "type": "string",
+      "description": "Echoed command ID from the request"
+    },
+    "response": {
+      "type": "string",
+      "enum": ["success", "failure"],
+      "description": "Command result status"
+    },
+    "payload": {
+      "type": "object",
+      "description": "Reader status payload on success, or error details on failure.",
+      "properties": {
+        "ble": {
+          "type": "object",
+          "description": "BLE scanner runtime status. Present only when BLE is supported and status is available.",
+          "properties": {
+            "scanState": {
+              "type": "string",
+              "enum": ["running", "stopped"],
+              "description": "Current BLE scanner state."
+            },
+            "scanStartTime": {
+              "type": "string",
+              "format": "date-time",
+              "description": "ISO 8601 timestamp when the BLE scan was last started."
+            },
+            "beaconCounts": {
+              "type": "object",
+              "description": "BLE advertisement counts by beacon format for the current scan window.",
+              "properties": {
+                "total": { "type": "integer", "description": "Total BLE advertisements observed." },
+                "iBeacon": { "type": "integer", "description": "Number of iBeacon advertisements observed." },
+                "altBeacon": { "type": "integer", "description": "Number of AltBeacon advertisements observed." },
+                "eddystone": { "type": "integer", "description": "Number of Eddystone advertisements observed." },
+                "generic": { "type": "integer", "description": "Number of generic BLE advertisements observed." }
+              }
+            }
+          }
+        },
+        "radioActivity": {
+          "type": "string",
+          "enum": ["active", "inactive"],
+          "description": "Current RFID radio activity state."
+        },
+        "radioConnection": {
+          "type": "string",
+          "enum": ["connected", "disconnected"],
+          "description": "Current connection state of the RFID radio."
+        },
+        "antennas": {
+          "type": "object",
+          "description": "Antenna connection status keyed by antenna port (connected or disconnected)."
+        },
+        "cpu": {
+          "type": "object",
+          "description": "Current CPU utilization percentages.",
+          "properties": {
+            "system": { "type": "number", "description": "CPU utilization percentage consumed by system processes." },
+            "user": { "type": "number", "description": "CPU utilization percentage consumed by user processes." }
+          }
+        },
+        "ram": {
+          "type": "object",
+          "description": "RAM usage statistics.",
+          "properties": {
+            "free": { "type": "number" },
+            "total": { "type": "number" },
+            "used": { "type": "number" }
+          }
+        },
+        "temperature": {
+          "type": "number",
+          "description": "Current reader internal temperature in degrees Celsius."
+        },
+        "uptime": {
+          "type": "string",
+          "description": "Elapsed time since the reader last started."
+        },
+        "systemTime": {
+          "type": "string",
+          "description": "Current reader system time."
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "command": "get_status",
+      "command_id": "f1e2d3c4-b5a6-7890-1234-567890abcdef",
+      "response": "success",
+      "payload": {
+        "radioActivity": "inactive",
+        "radioConnection": "connected",
+        "temperature": 33,
+        "uptime": "0D1H13M15S",
+        "systemTime": "13/06/2024 11:19",
+        "cpu": { "system": 0, "user": 2 },
+        "ram": { "free": 76, "total": 100, "used": 24 },
+        "ble": {
+          "scanState": "running",
+          "scanStartTime": "2026-05-21T13:46:16.955Z",
+          "beaconCounts": {
+            "total": 108,
+            "iBeacon": 75,
+            "altBeacon": 33,
+            "eddystone": 0,
+            "generic": 0
+          }
+        }
+      }
+    }
+  ]
+}
