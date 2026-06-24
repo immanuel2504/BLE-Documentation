@@ -1295,10 +1295,7 @@ function render(spec) {
       navHtml += '<a class="nav-tag" href="#tag-'+tagId+'">'+escHtml(tagName)+'</a>';
       tag.operations.forEach(function(entry){
         var opId = opIdFromPath(entry.path);
-        var opSummary = entry.op.summary||entry.path;
-        if (!(tag.operations.length===1 && opSummary===tagName)) {
-          navHtml += '<a class="nav-op" href="#op-'+opId+'">'+escHtml(opSummary)+'</a>';
-        }
+        navHtml += '<a class="nav-op" href="#op-'+opId+'">'+escHtml(entry.op.summary||entry.path)+'</a>';
       });
       /* Tag section content */
       html += '<div class="tag-section" id="tag-'+tagId+'">';
