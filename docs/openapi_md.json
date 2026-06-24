@@ -15,9 +15,6 @@
             "description": "Use the control commands to start and stop BLE scanning on the reader. BLE must be configured with `set_bleConfig` and `ble.enable` set to `true` before issuing `start`. Use `scanType` to activate or stop BLE only, or combined BLE and RFID scanning."
         },
         {
-            "name": "BLE Data Events"
-        },
-        {
             "name": "BLE Status",
             "description": "Read the reader's operational status to confirm the BLE scanner state (`scanState`), when the current scan started (`scanStartTime`), and advertisement counts per protocol (`beaconCounts`). The status response also includes general reader health such as uptime, temperature, CPU, RAM, antenna, and radio state."
         }
@@ -33,12 +30,6 @@
             "name": "Control",
             "tags": [
                 "Control Commands"
-            ]
-        },
-        {
-            "name": "Data",
-            "tags": [
-                "BLE Data Events"
             ]
         },
         {
@@ -1233,161 +1224,6 @@
                         "recommended_action": "Check the payload format and retry"
                     }
                 ]
-            }
-        },
-        "/ble_data_events": {
-            "post": {
-                "tags": [
-                    "BLE Data Events"
-                ],
-                "summary": "BLE Data Events",
-                "x-event": true,
-                "description": "**Description:**\nExplains how BLE tag and beacon data is reported after BLE scanning starts.\n\n**Usage:**\nStart BLE scanning with the `start` command or `PUT /cloud/start`. After scanning starts, the reader publishes detected BLE advertisements to the data endpoints configured for the reader, such as WebSocket, MQTT, Azure, or AWS.\n\nThe start command response only confirms that scanning started. Detected tags and beacons are delivered separately as BLE data events.\n\nEach BLE data event uses `type: \"BLE_DATA\"` and includes the detected device information, RSSI, beacon protocol, protocol-specific fields, and event timestamp.\n\n**Where BLE data is received:**\n\n- **WebSocket:** BLE events are sent through the configured WebSocket data connection.\n- **MQTT:** BLE events are published to the configured MQTT data topic.\n- **Azure or AWS:** BLE events are forwarded to the configured cloud endpoint.\n\n**Example BLE data event:**\n\n```json\n[\n  {\n    \"data\": {\n      \"Adapter\": \"/org/bluez/hci0\",\n      \"Address\": \"52:93:9E:6A:EA:DE\",\n      \"AddressType\": \"random\",\n      \"Alias\": \"52-93-9E-6A-EA-DE\",\n      \"Blocked\": false,\n      \"Connected\": false,\n      \"LegacyPairing\": false,\n      \"Paired\": false,\n      \"RSSI\": -65,\n      \"ServicesResolved\": false,\n      \"Trusted\": false,\n      \"UUIDs\": [\n        \"0000feaa-0000-1000-8000-00805f9b34fb\"\n      ],\n      \"beaconType\": \"EDDYSTONE_URL\",\n      \"eddystone\": {\n        \"frameType\": \"URL\",\n        \"txPower\": -18,\n        \"url\": \"https://google.com\"\n      }\n    },\n    \"timestamp\": \"2026-06-17T21:45:24.045Z\",\n    \"type\": \"BLE_DATA\"\n  }\n]\n```",
-                "responses": {
-                    "default": {
-                        "description": "ble_data_events event payload",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "object",
-                                        "required": [
-                                            "type",
-                                            "timestamp",
-                                            "data"
-                                        ],
-                                        "properties": {
-                                            "type": {
-                                                "type": "string",
-                                                "enum": [
-                                                    "BLE_DATA"
-                                                ],
-                                                "description": "Event type for BLE advertisement data."
-                                            },
-                                            "timestamp": {
-                                                "type": "string",
-                                                "format": "date-time",
-                                                "description": "Time when the reader generated the event."
-                                            },
-                                            "data": {
-                                                "type": "object",
-                                                "description": "Detected BLE advertisement details.",
-                                                "properties": {
-                                                    "Adapter": {
-                                                        "type": "string",
-                                                        "description": "Bluetooth adapter path used by the reader."
-                                                    },
-                                                    "Address": {
-                                                        "type": "string",
-                                                        "description": "BLE device address."
-                                                    },
-                                                    "AddressType": {
-                                                        "type": "string",
-                                                        "description": "BLE address type, such as public or random."
-                                                    },
-                                                    "Alias": {
-                                                        "type": "string",
-                                                        "description": "Device alias reported by the BLE stack."
-                                                    },
-                                                    "Blocked": {
-                                                        "type": "boolean",
-                                                        "description": "Indicates whether the device is blocked."
-                                                    },
-                                                    "Connected": {
-                                                        "type": "boolean",
-                                                        "description": "Indicates whether the device is connected."
-                                                    },
-                                                    "LegacyPairing": {
-                                                        "type": "boolean",
-                                                        "description": "Indicates whether the device uses legacy pairing."
-                                                    },
-                                                    "Paired": {
-                                                        "type": "boolean",
-                                                        "description": "Indicates whether the device is paired."
-                                                    },
-                                                    "RSSI": {
-                                                        "type": "integer",
-                                                        "description": "Received signal strength indicator, in dBm."
-                                                    },
-                                                    "ServicesResolved": {
-                                                        "type": "boolean",
-                                                        "description": "Indicates whether services have been resolved."
-                                                    },
-                                                    "Trusted": {
-                                                        "type": "boolean",
-                                                        "description": "Indicates whether the device is trusted."
-                                                    },
-                                                    "UUIDs": {
-                                                        "type": "array",
-                                                        "description": "Service UUIDs advertised by the device.",
-                                                        "items": {
-                                                            "type": "string"
-                                                        }
-                                                    },
-                                                    "beaconType": {
-                                                        "type": "string",
-                                                        "description": "Detected beacon protocol or frame type."
-                                                    },
-                                                    "eddystone": {
-                                                        "type": "object",
-                                                        "description": "Eddystone-specific fields, when present.",
-                                                        "properties": {
-                                                            "frameType": {
-                                                                "type": "string",
-                                                                "description": "Eddystone frame type."
-                                                            },
-                                                            "txPower": {
-                                                                "type": "integer",
-                                                                "description": "Advertised transmit power."
-                                                            },
-                                                            "url": {
-                                                                "type": "string",
-                                                                "description": "Decoded Eddystone URL."
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                },
-                                "examples": {
-                                    "example1": {
-                                        "value": [
-                                            {
-                                                "data": {
-                                                    "Adapter": "/org/bluez/hci0",
-                                                    "Address": "52:93:9E:6A:EA:DE",
-                                                    "AddressType": "random",
-                                                    "Alias": "52-93-9E-6A-EA-DE",
-                                                    "Blocked": false,
-                                                    "Connected": false,
-                                                    "LegacyPairing": false,
-                                                    "Paired": false,
-                                                    "RSSI": -65,
-                                                    "ServicesResolved": false,
-                                                    "Trusted": false,
-                                                    "UUIDs": [
-                                                        "0000feaa-0000-1000-8000-00805f9b34fb"
-                                                    ],
-                                                    "beaconType": "EDDYSTONE_URL",
-                                                    "eddystone": {
-                                                        "frameType": "URL",
-                                                        "txPower": -18,
-                                                        "url": "https://google.com"
-                                                    }
-                                                },
-                                                "timestamp": "2026-06-17T21:45:24.045Z",
-                                                "type": "BLE_DATA"
-                                            }
-                                        ]
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
             }
         },
         "/get_status": {
