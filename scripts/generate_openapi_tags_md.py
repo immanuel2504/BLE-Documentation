@@ -343,6 +343,8 @@ def build_openapi():
         op = OrderedDict()
         op["tags"] = [tag_name]
         op["summary"] = req_schema.get("x-summary", op_name.replace("_", " ").title())
+        if source == "events":
+            op["x-event"] = True
         if description:
             op["description"] = description
 

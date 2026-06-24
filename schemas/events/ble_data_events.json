@@ -1,0 +1,132 @@
+{
+  "title": "ble_data_events",
+  "x-summary": "BLE Data Events",
+  "x-tag": "BLE Data Events",
+  "description": "BLE advertisement event payload published after BLE scanning starts.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["type", "timestamp", "data"],
+    "properties": {
+      "type": {
+        "type": "string",
+        "enum": ["BLE_DATA"],
+        "description": "Event type for BLE advertisement data."
+      },
+      "timestamp": {
+        "type": "string",
+        "format": "date-time",
+        "description": "Time when the reader generated the event."
+      },
+      "data": {
+        "type": "object",
+        "description": "Detected BLE advertisement details.",
+        "properties": {
+          "Adapter": {
+            "type": "string",
+            "description": "Bluetooth adapter path used by the reader."
+          },
+          "Address": {
+            "type": "string",
+            "description": "BLE device address."
+          },
+          "AddressType": {
+            "type": "string",
+            "description": "BLE address type, such as public or random."
+          },
+          "Alias": {
+            "type": "string",
+            "description": "Device alias reported by the BLE stack."
+          },
+          "Blocked": {
+            "type": "boolean",
+            "description": "Indicates whether the device is blocked."
+          },
+          "Connected": {
+            "type": "boolean",
+            "description": "Indicates whether the device is connected."
+          },
+          "LegacyPairing": {
+            "type": "boolean",
+            "description": "Indicates whether the device uses legacy pairing."
+          },
+          "Paired": {
+            "type": "boolean",
+            "description": "Indicates whether the device is paired."
+          },
+          "RSSI": {
+            "type": "integer",
+            "description": "Received signal strength indicator, in dBm."
+          },
+          "ServicesResolved": {
+            "type": "boolean",
+            "description": "Indicates whether services have been resolved."
+          },
+          "Trusted": {
+            "type": "boolean",
+            "description": "Indicates whether the device is trusted."
+          },
+          "UUIDs": {
+            "type": "array",
+            "description": "Service UUIDs advertised by the device.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "beaconType": {
+            "type": "string",
+            "description": "Detected beacon protocol or frame type."
+          },
+          "eddystone": {
+            "type": "object",
+            "description": "Eddystone-specific fields, when present.",
+            "properties": {
+              "frameType": {
+                "type": "string",
+                "description": "Eddystone frame type."
+              },
+              "txPower": {
+                "type": "integer",
+                "description": "Advertised transmit power."
+              },
+              "url": {
+                "type": "string",
+                "description": "Decoded Eddystone URL."
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "examples": [
+    [
+      {
+        "data": {
+          "Adapter": "/org/bluez/hci0",
+          "Address": "52:93:9E:6A:EA:DE",
+          "AddressType": "random",
+          "Alias": "52-93-9E-6A-EA-DE",
+          "Blocked": false,
+          "Connected": false,
+          "LegacyPairing": false,
+          "Paired": false,
+          "RSSI": -65,
+          "ServicesResolved": false,
+          "Trusted": false,
+          "UUIDs": [
+            "0000feaa-0000-1000-8000-00805f9b34fb"
+          ],
+          "beaconType": "EDDYSTONE_URL",
+          "eddystone": {
+            "frameType": "URL",
+            "txPower": -18,
+            "url": "https://google.com"
+          }
+        },
+        "timestamp": "2026-06-17T21:45:24.045Z",
+        "type": "BLE_DATA"
+      }
+    ]
+  ]
+}

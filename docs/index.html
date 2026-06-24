@@ -786,6 +786,7 @@ function renderDownloadSingleExample(label, value) {
 }
 function renderDownloadOperation(path, method, op) {
   var summary = op.summary||path;
+  var isEvent = !!op['x-event'];
   var restFolder = REST_ARTIFACTS[summary]||null;
   var ct = op.requestBody && op.requestBody.content ? op.requestBody.content['application/json'] : null;
   var resKey = op.responses ? Object.keys(op.responses)[0] : null;
@@ -793,7 +794,7 @@ function renderDownloadOperation(path, method, op) {
   var rct = res && res.content ? res.content['application/json'] : null;
   var html = '<section class="download-operation">';
   html += '<h3>'+escHtml(summary)+'</h3>';
-  html += '<div class="download-meta"><span>'+escHtml(String(method||'').toUpperCase())+'</span><code>'+escHtml(path)+'</code></div>';
+  if (!isEvent) html += '<div class="download-meta"><span>'+escHtml(String(method||'').toUpperCase())+'</span><code>'+escHtml(path)+'</code></div>';
   if (op.description) html += '<div class="md-content">'+md(op.description)+'</div>';
   if (ct) {
     html += '<h4>MQTT request</h4>';
@@ -801,9 +802,9 @@ function renderDownloadOperation(path, method, op) {
     if (ct.schema) html += '<h4>MQTT request schema</h4>'+schemaTable(ct.schema);
   }
   if (rct) {
-    html += '<h4>MQTT response</h4>';
+    html += '<h4>'+(isEvent?'Event example':'MQTT response')+'</h4>';
     html += renderDownloadExamples(rct.examples||{});
-    if (rct.schema) html += '<h4>MQTT response schema</h4>'+schemaTable(rct.schema);
+    if (rct.schema) html += '<h4>'+(isEvent?'Event schema':'MQTT response schema')+'</h4>'+schemaTable(rct.schema);
   }
   if (restFolder) {
     var restReqExamples = getRestArtifact(restFolder,'request_examples');
@@ -951,6 +952,7 @@ function renderOperation(path, method, op) {
   var summary = op.summary||path;
   var id = opIdFromPath(path);
   var desc = op.description||'';
+  var isEvent = !!op['x-event'];
   var restFolder = REST_ARTIFACTS[summary]||null;
 
   var restReqExamplesData = restFolder ? getRestArtifact(restFolder,'request_examples') : undefined;
@@ -1041,12 +1043,12 @@ function renderOperation(path, method, op) {
         resExampleJson = JSON.stringify(resExObj[resExKeys[0]].value,null,2);
       }
       resHtml = '<div class="payload-section">';
-      resHtml += '<div class="payload-heading">Response Payload</div>';
+      resHtml += '<div class="payload-heading">'+(isEvent?'Event Payload':'Response Payload')+'</div>';
       var hasResContent = resExKeys.length||resSchemaHtml||restResExampleJson||restResExampleEmpty||restResSchemaHtml;
       if (hasResContent) {
         resHtml += '<div class="tab-bar">';
-        if (resExKeys.length) resHtml += '<button class="tab-btn active" data-tab="res-ex-'+id+'">MQTT Example</button>';
-        if (resSchemaHtml) resHtml += '<button class="tab-btn'+(resExKeys.length?'':' active')+'" data-tab="res-sc-'+id+'">MQTT Schema</button>';
+        if (resExKeys.length) resHtml += '<button class="tab-btn active" data-tab="res-ex-'+id+'">'+(isEvent?'Event Example':'MQTT Example')+'</button>';
+        if (resSchemaHtml) resHtml += '<button class="tab-btn'+(resExKeys.length?'':' active')+'" data-tab="res-sc-'+id+'">'+(isEvent?'Event Schema':'MQTT Schema')+'</button>';
         if (restResExampleJson||restResExampleEmpty) resHtml += '<button class="tab-btn" data-tab="res-rest-ex-'+id+'">REST Example</button>';
         if (restResSchemaHtml) resHtml += '<button class="tab-btn" data-tab="res-rest-sc-'+id+'">REST Schema</button>';
         resHtml += '</div>';
@@ -1293,7 +1295,10 @@ function render(spec) {
       navHtml += '<a class="nav-tag" href="#tag-'+tagId+'">'+escHtml(tagName)+'</a>';
       tag.operations.forEach(function(entry){
         var opId = opIdFromPath(entry.path);
-        navHtml += '<a class="nav-op" href="#op-'+opId+'">'+escHtml(entry.op.summary||entry.path)+'</a>';
+        var opSummary = entry.op.summary||entry.path;
+        if (!(tag.operations.length===1 && opSummary===tagName)) {
+          navHtml += '<a class="nav-op" href="#op-'+opId+'">'+escHtml(opSummary)+'</a>';
+        }
       });
       /* Tag section content */
       html += '<div class="tag-section" id="tag-'+tagId+'">';
