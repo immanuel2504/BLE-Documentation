@@ -801,10 +801,10 @@ function renderDownloadOperation(path, method, op) {
     html += renderDownloadExamples(ct.examples||{});
     if (ct.schema) html += '<h4>MQTT request schema</h4>'+schemaTable(ct.schema);
   }
-  if (rct) {
-    html += '<h4>'+(isEvent?'Event example':'MQTT response')+'</h4>';
+  if (rct && !isEvent) {
+    html += '<h4>MQTT response</h4>';
     html += renderDownloadExamples(rct.examples||{});
-    if (rct.schema) html += '<h4>'+(isEvent?'Event schema':'MQTT response schema')+'</h4>'+schemaTable(rct.schema);
+    if (rct.schema) html += '<h4>MQTT response schema</h4>'+schemaTable(rct.schema);
   }
   if (restFolder) {
     var restReqExamples = getRestArtifact(restFolder,'request_examples');
@@ -1030,14 +1030,14 @@ function renderOperation(path, method, op) {
   }
 
   var resHtml = '';
-  if (op.responses) {
+  if (op.responses && !isEvent) {
     var resKey = Object.keys(op.responses)[0];
     var res = op.responses[resKey];
     if (res && res.content && res.content['application/json']) {
       var rct = res.content['application/json'];
       var resExObj = rct.examples||{};
       var resExKeys = Object.keys(resExObj);
-      var resSchemaHtml = rct.schema ? schemaTable(rct.schema) : '';
+      var resSchemaHtml = (rct.schema && !isEvent) ? schemaTable(rct.schema) : '';
       var resExampleJson = '';
       if (resExKeys.length && resExObj[resExKeys[0]].value) {
         resExampleJson = JSON.stringify(resExObj[resExKeys[0]].value,null,2);
