@@ -32,8 +32,9 @@ Use this workflow when you manage BLE scanning through HTTPS requests.
 2. **Save BLE configuration:** Send `PUT /cloud/ble-config` with `ble.enable` set to `true`. Include optional scan interval, RSSI filters, service UUID filters, or protocol-specific filters as needed.
 3. **View the current configuration:** Send `GET /cloud/ble-config` and confirm that `ble.enable` is `true`.
 4. **Start BLE scanning:** Send `PUT /cloud/start` with `scanType: ["ble"]`.
-5. **Monitor scanning:** Send `GET /cloud/status` to confirm that `ble.scanState` is `running` and to review BLE advertisement counts.
-6. **Stop BLE scanning:** Send `PUT /cloud/stop` with `scanType: ["ble"]`.
+5. **Receive BLE data:** After scanning starts, BLE tag and beacon data is reported through the configured data endpoints, such as WebSocket, MQTT, Azure, or AWS.
+6. **Monitor scanning:** Send `GET /cloud/status` to confirm that `ble.scanState` is `running` and to review BLE advertisement counts.
+7. **Stop BLE scanning:** Send `PUT /cloud/stop` with `scanType: ["ble"]`.
 
 ## MQTT workflow
 
@@ -42,5 +43,45 @@ Use this workflow when you manage BLE scanning through the reader's MQTT command
 1. **Save BLE configuration:** Publish `set_bleConfig` with `payload.ble.enable` set to `true`. Include optional scan interval, RSSI filters, service UUID filters, or protocol-specific filters as needed.
 2. **View the current configuration:** Publish `get_bleConfig` and confirm that `payload.ble.enable` is `true`.
 3. **Start BLE scanning:** Publish `start` with `scanType: ["ble"]`.
-4. **Monitor scanning:** Publish `get_status` to confirm that `payload.ble.scanState` is `running` and to review BLE advertisement counts.
-5. **Stop BLE scanning:** Publish `stop` with `scanType: ["ble"]`.
+4. **Receive BLE data:** After scanning starts, BLE tag and beacon data is reported through the configured data endpoints, such as WebSocket, MQTT, Azure, or AWS.
+5. **Monitor scanning:** Publish `get_status` to confirm that `payload.ble.scanState` is `running` and to review BLE advertisement counts.
+6. **Stop BLE scanning:** Publish `stop` with `scanType: ["ble"]`.
+
+## BLE data events
+
+The start operation starts BLE scanning. It does not return detected tag or beacon data in the command response. After scanning starts, the reader publishes BLE data events to the data endpoints configured for the reader, such as WebSocket, MQTT, Azure, or AWS.
+
+Each BLE data event uses `type: "BLE_DATA"` and includes the detected device information, RSSI, protocol type, protocol-specific fields, and event timestamp.
+
+Example BLE data event:
+
+```json
+[
+  {
+    "data": {
+      "Adapter": "/org/bluez/hci0",
+      "Address": "52:93:9E:6A:EA:DE",
+      "AddressType": "random",
+      "Alias": "52-93-9E-6A-EA-DE",
+      "Blocked": false,
+      "Connected": false,
+      "LegacyPairing": false,
+      "Paired": false,
+      "RSSI": -65,
+      "ServicesResolved": false,
+      "Trusted": false,
+      "UUIDs": [
+        "0000feaa-0000-1000-8000-00805f9b34fb"
+      ],
+      "beaconType": "EDDYSTONE_URL",
+      "eddystone": {
+        "frameType": "URL",
+        "txPower": -18,
+        "url": "https://google.com"
+      }
+    },
+    "timestamp": "2026-06-17T21:45:24.045Z",
+    "type": "BLE_DATA"
+  }
+]
+```
