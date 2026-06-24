@@ -209,10 +209,19 @@ function renderMdBlock(block, options) {
     if (/^\d+\.\s+/.test(cur)) {
       var oItems = [];
       while (idx<lines.length && /^\d+\.\s+/.test(lines[idx].trim())) {
-        oItems.push(lines[idx].trim().replace(/^\d+\.\s+/,''));
+        var itemHtml = formatInline(lines[idx].trim().replace(/^\d+\.\s+/,''));
         idx++;
+        var subItems = [];
+        while (idx<lines.length && /^\s+[-*]\s+/.test(lines[idx])) {
+          subItems.push(formatInline(lines[idx].trim().replace(/^[-*]\s+/,'')));
+          idx++;
+        }
+        if (subItems.length) {
+          itemHtml += '<ul>'+subItems.map(function(s){ return '<li>'+s+'</li>'; }).join('')+'</ul>';
+        }
+        oItems.push(itemHtml);
       }
-      parts.push('<ol class="md-ol">'+oItems.map(function(i){ return '<li>'+formatInline(i)+'</li>'; }).join('')+'</ol>');
+      parts.push('<ol class="md-ol">'+oItems.map(function(i){ return '<li>'+i+'</li>'; }).join('')+'</ol>');
       continue;
     }
     if (/^[-*]\s+/.test(cur)) {

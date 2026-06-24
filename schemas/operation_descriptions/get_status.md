@@ -6,9 +6,9 @@ Send this command with an empty payload to read the reader's current status. For
 
 **BLE status fields:**
 
-- **ble.scanState** (string): Current BLE scanner state — `running` or `stopped`.
+- **ble.scanState** (string): Current BLE scanner state: `running` or `stopped`.
 - **ble.scanStartTime** (string, date-time): ISO 8601 timestamp of when the BLE scan was last started.
-- **ble.beaconCounts** (object): Advertisement counts for the current scan window — `total`, `iBeacon`, `altBeacon`, `eddystone`, and `generic`.
+- **ble.beaconCounts** (object): Advertisement counts for the current scan window: `total`, `iBeacon`, `altBeacon`, `eddystone`, and `generic`.
 
 <div class="endpoint-block"><div class="ep-heading ep-mqtt">MQTT Endpoint Details</div><table class="endpoint-table"><tbody><tr><td>Command</td><td><code>get_status</code></td></tr></tbody></table></div>
 
