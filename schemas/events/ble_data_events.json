@@ -1,0 +1,12 @@
+{
+  "title": "ble_data_events",
+  "x-summary": "BLE Data Events",
+  "x-tag": "BLE Data Events",
+  "description": "BLE data events reported after BLE scanning starts.",
+  "type": "object",
+  "examples": [
+    {
+      "type": "BLE_DATA"
+    }
+  ]
+}

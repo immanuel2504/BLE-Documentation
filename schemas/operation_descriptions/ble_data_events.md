@@ -1,6 +1,6 @@
-## BLE data events
+## BLE Data Events
 
-The start operation starts BLE scanning. It does not return detected tag or beacon data in the command response. After scanning starts, the reader publishes BLE data events to the data endpoints configured for the reader, such as WebSocket, MQTT, Azure, or AWS.
+After BLE scanning starts, the reader publishes detected tag and beacon data to the data endpoints configured for the reader, such as WebSocket, MQTT, Azure, or AWS.
 
 Each BLE data event uses `type: "BLE_DATA"` and includes the detected device information, RSSI, protocol type, protocol-specific fields, and event timestamp.
 

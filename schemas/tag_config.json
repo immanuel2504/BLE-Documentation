@@ -2,6 +2,7 @@
   "tag_groups": {
     "BLE Scanner": ["BLE Configuration"],
     "Control": ["Control Commands"],
+    "Data": ["BLE Data Events"],
     "Status": ["BLE Status"]
   },
   "tag_descriptions": {
@@ -17,6 +18,9 @@
     "Control Commands": [
       "start",
       "stop"
+    ],
+    "BLE Data Events": [
+      "ble_data_events"
     ],
     "BLE Status": [
       "get_status"
