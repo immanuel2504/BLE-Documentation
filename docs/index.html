@@ -595,7 +595,8 @@ function wireJsonInteractive(viewer) {
     else expandNode(viewer,nodeId);
   });
 }
-function buildJsonViewerWrap(rawText) {
+function buildJsonViewerWrap(rawText, options) {
+  options = options || {};
   var parsed = JSON.parse(rawText);
   var wrapper = document.createElement('div');
   wrapper.className = 'json-viewer-wrap';
@@ -636,7 +637,8 @@ function buildJsonViewerWrap(rawText) {
   wrapper.appendChild(toolbar);
   wrapper.appendChild(interactive);
   wrapper.setAttribute('data-json-raw', rawText);
-  expandFirstLevelJson(interactive);
+  if (options.expandAll) expandAllJson(interactive);
+  else expandFirstLevelJson(interactive);
   return wrapper;
 }
 function setJsonViewerData(container, value) {
@@ -681,7 +683,7 @@ function addCollapseToggles(root) {
     pre.setAttribute('data-json-processed','1');
     var rawText = code.textContent.trim();
     try {
-      var wrapper = buildJsonViewerWrap(rawText);
+      var wrapper = buildJsonViewerWrap(rawText, {expandAll: !!pre.closest('#op-ble_data_events')});
       pre.parentNode.replaceChild(wrapper, pre);
     } catch(e) {
       if (window.Prism) Prism.highlightElement(code);
